@@ -1,0 +1,50 @@
+import 'package:flutter/material.dart';
+
+class AppColors {
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
+  static const Color c1F3C88 = Color(0xFF1F3C88);
+  static const Color c47579D = Color(0xFF47579D);
+  static const Color c313131 = Color(0xFF313131);
+  static const Color cF3B608 = Color(0xFFF3B608);
+  static const Color cF6F6F6 = Color(0xFFF6F6F6);
+  static const Color cF7F7F7 = Color(0xFFF7F7F7);
+  static const Color cFF718B = Color(0xFFFF718B);
+  static const Color c6CCF23 = Color(0xFF6CCF23);
+  static const Color c338AF3 = Color(0xFF338AF3);
+  static const Color c262626 = Color(0xFF262626);
+  static const Color c61677D = Color(0xFF61677D);
+  static const Color c5765A9 = Color(0xFF5765A9);
+  static const Color cF5F9FE = Color(0xFFF5F9FE);
+  static const Color cE0E5EC = Color(0xFFE0E5EC);
+  static const Color c3B4054 = Color(0xFF3B4054);
+  static const Color c3461FD = Color(0xFF3461FD);
+  static const Color cFF0000 = Color(0xFFFF0000);
+  static const Color cF9A405 = Color(0xFFF9A405);
+  static const Color cFDFCFC = Color(0xFFFDFCFC);
+  static const Color c909FE1 = Color(0xFF909FE1);
+  static const Color c1C3255 = Color(0xFF1C3255);
+  static const Color c3D83FF = Color(0xFF3D83FF);
+  static const Color c3730A3 = Color(0xFF3730A3);
+  static const Color c4338CA = Color(0xFF4338CA);
+  static const Color c4F46E5 = Color(0xFF4F46E5);
+  static const Color c6366F1 = Color(0xFF6366F1);
+  static const Color c818CF8 = Color(0xFF818CF8);
+  static const Color cA5B4FC = Color(0xFFA5B4FC);
+  static const Color c4A3AFF = Color(0xFF4A3AFF);
+  static const Color c08F3BC = Color(0xFF08F3BC);
+  static const Color cCD3959 = Color(0xFFCD3959);
+  static const Color cED7274 = Color(0xFFED7274);
+  static const Color cFFBB38 = Color(0xFFFFBB38);
+  static const Color cFFF5D9 = Color(0xFFFFF5D9);
+  static const Color c5664A8 = Color(0xFF5664A8);
+  static const Color cE7EDFF = Color(0xFFE7EDFF);
+  static const Color c00DF80 = Color(0xFF00DF80);
+  static const Color c34A33A = Color(0xFF34A33A);
+  static const Color c396AFF = Color(0xFF396AFF);
+  static const Color c74809C = Color(0xFF74809C);
+  static const Color c36A334 = Color(0xFF36A334);
+  static const Color cE6F4E6 = Color(0xFFE6F4E6);
+
+  static const Color fromRGBO494949060 = Color.fromRGBO(49, 49, 49, 0.60);
+}
