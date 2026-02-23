@@ -65,7 +65,8 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
             ),
             useMaterial3: false,
             fontFamily: "Nunito",
-            scaffoldBackgroundColor: Color(0xFF2c2c2c),
+
+            // scaffoldBackgroundColor: Color(0xFF2c2c2c),
             expansionTileTheme: const ExpansionTileThemeData(
               iconColor: AppColors.c1F3C88,
               collapsedIconColor: AppColors.c1F3C88,
@@ -81,7 +82,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
           ),
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
-          initialRoute: RouteNames.home,
+          initialRoute: RouteNames.tabBox,
           onGenerateRoute: AppRoutes.generateRoute,
         ),
       ),

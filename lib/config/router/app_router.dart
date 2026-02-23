@@ -5,16 +5,14 @@ class AppRoutes {
     switch (settings.name) {
       case RouteNames.home:
         return CupertinoPageRoute(builder: (context) => const HomeScreen());
-      // case RouteNames.searchScreen:
-      //   return CupertinoPageRoute(builder: (context) => const SearchScreen());
+      case RouteNames.searchScreen:
+        return CupertinoPageRoute(builder: (context) => const SearchScreen());
       // case RouteNames.myListScreen:
       //   return CupertinoPageRoute(builder: (context) => const MyListScreen());
       // case RouteNames.profile:
       //   return CupertinoPageRoute(builder: (context) => const ProfileScreen());
-      // case RouteNames.tabBox:
-      //   return CupertinoPageRoute(
-      //     builder: (context) => const TabBox(),
-      //   );
+      case RouteNames.tabBox:
+        return CupertinoPageRoute(builder: (context) => const TabBox());
 
       // case RouteNames.login:
       //   return CupertinoPageRoute(
