@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:speed_staff_mobile/config/core/constants/app_colors.dart';
-import 'package:speed_staff_mobile/config/core/extensions/size_extension.dart';
+import 'package:speed_staff_mobile/config/config.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/category_chip.dart';
 import '../widgets/restaurant_card.dart';
@@ -21,13 +20,12 @@ class HomeScreen extends StatelessWidget {
           children: [
             const Icon(Icons.restaurant_menu, color: AppColors.cF9A405),
             8.g,
-            const Text(
-              "CulinaShare",
-              style: TextStyle(
+            CustomText(
+             text:  "CulinaShare",
                 color: AppColors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
-              ),
+              
             ),
           ],
         ),
