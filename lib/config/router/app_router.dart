@@ -1,55 +1,66 @@
 part of 'route_part.dart';
 
-class AppRoutes {
-  static Route generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case RouteNames.home:
-        return CupertinoPageRoute(builder: (context) => const HomeScreen());
-      case RouteNames.searchScreen:
-        return CupertinoPageRoute(builder: (context) => const SearchScreen());
-      // case RouteNames.myListScreen:
-      //   return CupertinoPageRoute(builder: (context) => const MyListScreen());
-      // case RouteNames.profile:
-      //   return CupertinoPageRoute(builder: (context) => const ProfileScreen());
-      case RouteNames.tabBox:
-        return CupertinoPageRoute(builder: (context) => const TabBox());
-
-      // case RouteNames.login:
-      //   return CupertinoPageRoute(
-      //     builder: (context) => const LoginPage(),
-      //   );
-      // case RouteNames.otp:
-      //   return CupertinoPageRoute(
-      //     builder: (context) => const OtpPage(),
-      //   );
-      // case RouteNames.splash:
-      //   return CupertinoPageRoute(
-      //     builder: (context) => const SplashPage(),
-      //   );
-      default:
-        return CupertinoPageRoute(builder: (context) => _buildUnknownRoutePage());
-    }
-  }
-
-  static Widget _buildUnknownRoutePage() {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: AppColors.white,
-        systemOverlayStyle: const SystemUiOverlayStyle(statusBarColor: AppColors.white, statusBarIconBrightness: Brightness.dark),
+class AppRouter {
+  static final GoRouter router = GoRouter(
+    navigatorKey: rootNavigatorKey,
+    initialLocation: RouteNames.main,
+    routes: [
+      GoRoute(
+        path: RouteNames.splash,
+        builder: (context, state) => const SplashScreen(),
       ),
-      body: Column(
-        children: [
-          Center(
-            child: Text(
-              "Route not available!",
-              style: TextStyle(fontSize: 20, color: Colors.red, fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
+      GoRoute(
+        path: RouteNames.onboardingScreen,
+        builder: (context, state) => const OnboardingScreen(),
       ),
-    );
-  }
+      GoRoute(
+        path: RouteNames.roleSelectionScreen,
+        builder: (context, state) => const RoleSelectionScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.phoneInputScreen,
+        builder: (context, state) => const PhoneInputScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.otpVerificationScreen,
+        builder: (context, state) => const OtpVerificationScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.signInScreen,
+        builder: (context, state) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.registerWorkerScreen,
+        builder: (context, state) => const RegisterWorkerScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.registerRestaurantScreen,
+        builder: (context, state) => const RegisterRestaurantScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.forgotPasswordScreen,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.successScreen,
+        builder: (context, state) => const SuccessScreen(),
+      ),
+      
+      GoRoute(
+        path: RouteNames.main,
+        builder: (context, state) => const MainNavigationScreen(),
+      ),
+      GoRoute(
+        path: '/detail/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return RestaurantDetailScreen(restaurantId: id);
+        },
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+    ],
+  );
 }
