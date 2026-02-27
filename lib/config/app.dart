@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:speed_staff_mobile/config/router/router.dart';
 import 'package:toastification/toastification.dart';
 
 import 'core/constants/constants.dart';
 import 'core/providers/bloc_providers.dart';
+import 'package:speed_staff_mobile/config/widgets/custom_icon_button.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -75,7 +75,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
             actionIconTheme: ActionIconThemeData(
-              backButtonIconBuilder: (BuildContext context) => IconButton(
+              backButtonIconBuilder: (BuildContext context) => CustomIconButton(
                 onPressed: () => Navigator.maybePop(context),
                 icon: const Icon(Icons.arrow_back, color: AppColors.white),
               ),

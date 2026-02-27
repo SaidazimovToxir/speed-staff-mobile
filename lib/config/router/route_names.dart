@@ -17,7 +17,7 @@ class RouteNames {
   static const String registerRestaurantScreen = '/register_restaurant_screen';
   static const String forgotPasswordScreen = '/forgot_password_screen';
   static const String successScreen = '/success_screen';
-    static const String main = '/main';
-
-  
+  static const String main = '/main';
+  static const String notifications = '/notifications';
+  static const String restaurantDetail = '/detail';
 }

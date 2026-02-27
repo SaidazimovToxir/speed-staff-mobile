@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../core/di/injection_container.dart';
+import 'package:speed_staff_mobile/config/core/di/injection_container.dart';
 
 class TokenManager {
   //!token-----------------------------------

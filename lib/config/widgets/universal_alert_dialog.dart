@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:speed_staff_mobile/config/widgets/custom_text.dart';
+
 
 // Alert turini bildiradigan enum
 enum AlertType { error, success, info, warning }
@@ -70,10 +72,10 @@ class UniversalAlertDialog {
             children: [
               _getIconForType(type, isMaterial: true),
               const SizedBox(width: 10),
-              Expanded(child: Text(title, style: config.titleStyle)),
+              Expanded(child: CustomText(text: title, style: config.titleStyle)),
             ],
           ),
-          content: content ?? Text(message, style: config.messageStyle),
+          content: content ?? CustomText(text: message, style: config.messageStyle),
           backgroundColor: config.backgroundColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(config.borderRadius)),
           actions: dialogActions,
@@ -101,12 +103,12 @@ class UniversalAlertDialog {
       useRootNavigator: useRootNavigator,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text(title, style: config.titleStyle),
+          title: CustomText(text: title, style: config.titleStyle),
           content:
               content ??
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
-                child: Text(message, style: config.messageStyle),
+                child: CustomText(text: message, style: config.messageStyle),
               ),
           actions: dialogActions,
         );
@@ -121,7 +123,7 @@ class UniversalAlertDialog {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           style: TextButton.styleFrom(foregroundColor: config.primaryColor),
-          child: Text(config.defaultButtonText),
+          child: CustomText(text: config.defaultButtonText),
         ),
       ];
     }
@@ -139,7 +141,7 @@ class UniversalAlertDialog {
           foregroundColor: action.isDefaultAction ? config.primaryColor : null,
           backgroundColor: action.isDestructiveAction ? config.destructiveColor.withValues(alpha: 0.1) : null,
         ),
-        child: Text(action.text),
+        child: CustomText(text: action.text),
       );
     }).toList();
   }
@@ -147,7 +149,7 @@ class UniversalAlertDialog {
   // Cupertino (iOS) tugmalarini yaratish
   static List<Widget> _buildCupertinoActions(BuildContext context, List<AlertAction>? actions) {
     if (actions == null || actions.isEmpty) {
-      return [CupertinoDialogAction(onPressed: () => Navigator.of(context).pop(), isDefaultAction: true, child: Text(config.defaultButtonText))];
+      return [CupertinoDialogAction(onPressed: () => Navigator.of(context).pop(), isDefaultAction: true, child: CustomText(text: config.defaultButtonText))];
     }
 
     return actions.map((action) {
@@ -161,7 +163,7 @@ class UniversalAlertDialog {
         },
         isDefaultAction: action.isDefaultAction,
         isDestructiveAction: action.isDestructiveAction,
-        child: Text(action.text),
+        child: CustomText(text: action.text),
       );
     }).toList();
   }

@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
-import '../core/constants/constants.dart';
-import '../core/error/error.dart';
+import 'package:speed_staff_mobile/config/core/constants/constants.dart';
+import 'package:speed_staff_mobile/config/core/error/error.dart';
+import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_bloc.dart';
+import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_event.dart';
+import 'package:speed_staff_mobile/features/shared/auth/data/datasources/auth_local_datasource.dart';
+import 'package:speed_staff_mobile/config/core/di/injection_container.dart';
 
 /// HTTP client wrapper for making API requests
 class DioClient {
@@ -106,36 +110,56 @@ class DioClient {
 
 /// Interceptor for handling authentication tokens
 class _AuthInterceptor extends Interceptor {
-  // final AuthLocalDataSource _localDataSource = sl<AuthLocalDataSource>();
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    try {
+      final localDataSource = sl<AuthLocalDataSource>();
+      final token = await localDataSource.getToken();
 
-  // @override
-  // void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-  //   try {
-  //     final token = await _localDataSource.getToken();
-  //     if (kDebugMode) {
-  //       print("--------------Token--------------");
-  //       print(token);
-  //       print("----------------------------");
-  //     }
+      if (token != null) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
+    } catch (e) {
+      // Continue without token
+    }
+    handler.next(options);
+  }
 
-  //     if (token != null) {
-  //       options.headers['Authorization'] = 'Bearer $token';
-  //     }
-  //   } catch (e) {
-  //     // Continue without token if user is not found
-  //   }
-  //   handler.next(options);
-  // }
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    // If request fails with 401 AND it is not the refresh endpoint itself
+    if (err.response?.statusCode == 401 && !err.requestOptions.path.contains(ApiConstants.refreshToken)) {
+      try {
+        final localDataSource = sl<AuthLocalDataSource>();
+        final refreshToken = await localDataSource.getRefreshToken();
 
-  // @override
-  // void onError(DioException err, ErrorInterceptorHandler handler) async {
-  //   if (err.response?.statusCode == 401) {
-  //     try {
-  //       sl<AuthBloc>().add(AutoLogoutEvent());
-  //     } catch (e) {
-  //       // Handle error silently
-  //     }
-  //   }
-  //   handler.next(err);
-  // }
+        if (refreshToken != null) {
+          final dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+          final response = await dio.post(ApiConstants.refreshToken, data: {'refresh_token': refreshToken});
+          final newAccessToken = response.data['tokens']['access_token'];
+          final newRefreshToken = response.data['tokens']['refresh_token'];
+
+          await localDataSource.cacheToken(newAccessToken);
+          await localDataSource.cacheRefreshToken(newRefreshToken);
+
+          final options = err.requestOptions;
+          options.headers['Authorization'] = 'Bearer $newAccessToken';
+
+          final clonedRequest = await dio.request(
+            options.path,
+            options: Options(method: options.method, headers: options.headers),
+            data: options.data,
+            queryParameters: options.queryParameters,
+          );
+          return handler.resolve(clonedRequest);
+        } else {
+          sl<AuthBloc>().add(LogoutEvent());
+        }
+      } catch (e) {
+        // Refresh failed, auto-logout
+        sl<AuthBloc>().add(LogoutEvent());
+      }
+    }
+    handler.next(err);
+  }
 }
