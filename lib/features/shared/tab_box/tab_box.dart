@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speed_staff_mobile/features/employer/applications/presentation/pages/applications_screen.dart';
+import 'package:speed_staff_mobile/features/employer/profile/presentation/pages/employer_profile_screen.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/presentation/pages/my_vacancies_screen.dart';
 import 'package:speed_staff_mobile/features/user/user_home/presentation/pages/home_screen.dart';
 
 import 'package:speed_staff_mobile/config/config.dart';
@@ -18,11 +21,11 @@ import 'package:speed_staff_mobile/features/employer/employer_home/presentation/
 
 class PageConfig {
   final int index;
-  final String icon;
+  final String? icon;
+  final IconData? iconData;
   final String label;
-  final String activeIcon;
 
-  PageConfig({required this.index, required this.icon, required this.label, required this.activeIcon});
+  PageConfig({required this.index, this.icon, this.iconData, required this.label});
 }
 
 class CustomNavigationBar extends StatelessWidget {
@@ -35,34 +38,33 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-      child: Container(
-        decoration: BoxDecoration(
-          // color: AppColors.c262626.withValues(alpha: 0.8),
-          boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.3), spreadRadius: 1, blurRadius: 5, offset: const Offset(0, -3))],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: pages.asMap().entries.map((entry) {
-                return _IOSStyleNavItem(
-                  key: navKeys[entry.key],
-                  config: entry.value,
-                  isSelected: selectedIndex == entry.key,
-                  isDownloadPage: entry.key == 2,
-                  onTap: () {
-                    if (Platform.isAndroid) {
-                    } else {
-                      HapticFeedback.lightImpact();
-                    }
-                    onItemSelected(entry.key);
-                  },
-                );
-              }).toList(),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, -4))
+        ],
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: pages.asMap().entries.map((entry) {
+              return _IOSStyleNavItem(
+                key: navKeys[entry.key],
+                config: entry.value,
+                isSelected: selectedIndex == entry.key,
+                isDownloadPage: entry.key == 2,
+                onTap: () {
+                  if (Platform.isAndroid) {
+                  } else {
+                    HapticFeedback.lightImpact();
+                  }
+                  onItemSelected(entry.key);
+                },
+              );
+            }).toList(),
           ),
         ),
       ),
@@ -131,10 +133,17 @@ class _IOSStyleNavItemState extends State<_IOSStyleNavItem> with SingleTickerPro
               return Transform.scale(
                 scale: _scaleAnimation.value,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [CustomImageView(imagePath: widget.config.icon, width: 24, height: 24, color: widget.isSelected ? Colors.amber : null)],
+                    children: [
+                      if (widget.config.icon != null)
+                        CustomImageView(imagePath: widget.config.icon!, width: 24, height: 24, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400),
+                      if (widget.config.iconData != null)
+                        Icon(widget.config.iconData, size: 24, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400),
+                      const SizedBox(height: 4),
+                      Text(widget.config.label, style: TextStyle(fontSize: 10, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400, fontWeight: FontWeight.bold)),
+                    ],
                   ),
                 ),
               );
@@ -158,21 +167,22 @@ class _TabBoxState extends State<TabBox> {
   List<PageConfig> _getPagesForRole(String role) {
     if (role == 'employer') {
       return [
-        PageConfig(index: 0, icon: AppIcons.homePassiveIcn, label: 'Asosiy', activeIcon: AppIcons.homePassiveIcn),
-        PageConfig(index: 1, icon: AppIcons.searchPassiveIcn, label: 'E\'lonlar', activeIcon: AppIcons.searchPassiveIcn),
-        PageConfig(index: 2, icon: AppIcons.profilePassiveIcn, label: 'Profil', activeIcon: AppIcons.profilePassiveIcn),
+        PageConfig(index: 0, iconData: Icons.grid_view, label: 'Dashboard'),
+        PageConfig(index: 1, iconData: Icons.list_alt, label: 'Vacancies'),
+        PageConfig(index: 2, iconData: Icons.description_outlined, label: 'Applications'),
+        PageConfig(index: 3, iconData: Icons.person_outline, label: 'Profile'),
       ];
     } else if (role == 'seeker') {
       return [
-        PageConfig(index: 0, icon: AppIcons.homePassiveIcn, label: 'Asosiy', activeIcon: AppIcons.homePassiveIcn),
-        PageConfig(index: 1, icon: AppIcons.searchPassiveIcn, label: 'Vakansiyalar', activeIcon: AppIcons.searchPassiveIcn),
-        PageConfig(index: 2, icon: AppIcons.profilePassiveIcn, label: 'Profil', activeIcon: AppIcons.profilePassiveIcn),
+        PageConfig(index: 0, icon: AppIcons.homePassiveIcn, label: 'Asosiy'),
+        PageConfig(index: 1, icon: AppIcons.searchPassiveIcn, label: 'Vakansiyalar'),
+        PageConfig(index: 2, icon: AppIcons.profilePassiveIcn, label: 'Profil'),
       ];
     } else {
       return [
-        PageConfig(index: 0, icon: AppIcons.homePassiveIcn, label: 'Asosiy', activeIcon: AppIcons.homePassiveIcn),
-        PageConfig(index: 1, icon: AppIcons.searchPassiveIcn, label: 'Qidiruv', activeIcon: AppIcons.searchPassiveIcn),
-        PageConfig(index: 2, icon: AppIcons.profilePassiveIcn, label: 'Profil', activeIcon: AppIcons.profilePassiveIcn),
+        PageConfig(index: 0, icon: AppIcons.homePassiveIcn, label: 'Asosiy'),
+        PageConfig(index: 1, icon: AppIcons.searchPassiveIcn, label: 'Qidiruv'),
+        PageConfig(index: 2, icon: AppIcons.profilePassiveIcn, label: 'Profil'),
       ];
     }
   }
@@ -202,9 +212,11 @@ class _TabBoxState extends State<TabBox> {
         case 0:
           return const EmployerHomeScreen();
         case 1:
-          return const Center(child: Text("Employer Vacancies coming soon"));
+          return const MyVacanciesScreen();
         case 2:
-          return _buildProfilePlaceholder();
+          return const ApplicationsScreen(vacancyId: '1');
+        case 3:
+          return const EmployerProfileScreen();
         default:
           return const EmployerHomeScreen();
       }
@@ -244,35 +256,41 @@ class _TabBoxState extends State<TabBox> {
       child: Scaffold(
         body: BlocBuilder<TabBoxBloc, TabBoxState>(
           builder: (context, state) {
-            String role = 'user';
+            // TODO: remove this override when real auth is ready
+            // Currently forcing 'employer' for UI development
+            String role = 'employer';
             final authState = context.read<AuthBloc>().state;
             if (authState is AuthSuccess) {
-              role = authState.user.role ?? 'user';
+              // Override: treat any logged-in user as employer for dev
+              role = 'employer'; // authState.user.role ?? 'employer';
             } else if (authState is AuthNeedsProfileUpdate) {
-              role = authState.user.role ?? 'user';
+              role = 'employer'; // authState.user.role ?? 'employer';
             }
             final activePages = _getPagesForRole(role);
+            final safeIndex = state.selectedIndex.clamp(0, activePages.length - 1);
 
-            return IndexedStack(index: state.selectedIndex, children: activePages.map((page) => _getPageForIndex(page.index, role)).toList());
+            return IndexedStack(index: safeIndex, children: activePages.map((page) => _getPageForIndex(page.index, role)).toList());
           },
         ),
         bottomNavigationBar: Padding(
           padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
           child: BlocBuilder<TabBoxBloc, TabBoxState>(
             builder: (context, state) {
-              String role = 'user';
+              // TODO: remove this override when real auth is ready
+              String role = 'employer';
               final authState = context.read<AuthBloc>().state;
               if (authState is AuthSuccess) {
-                role = authState.user.role ?? 'user';
+                role = 'employer'; // authState.user.role ?? 'employer';
               } else if (authState is AuthNeedsProfileUpdate) {
-                role = authState.user.role ?? 'user';
+                role = 'employer'; // authState.user.role ?? 'employer';
               }
               final activePages = _getPagesForRole(role);
+              final safeIndex = state.selectedIndex.clamp(0, activePages.length - 1);
 
               return ClipRRect(
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(0), topRight: Radius.circular(0)),
                 child: CustomNavigationBar(
-                  selectedIndex: state.selectedIndex,
+                  selectedIndex: safeIndex,
                   pages: activePages,
                   navKeys: _navKeys,
                   onItemSelected: (index) {

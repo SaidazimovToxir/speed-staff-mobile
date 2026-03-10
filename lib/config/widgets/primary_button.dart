@@ -9,6 +9,7 @@ class PrimaryButton extends StatelessWidget {
   final Color? color;
   final Color? textColor;
   final double? width;
+  final double? height;
   final Widget? icon;
   final bool isOutlined;
 
@@ -20,6 +21,7 @@ class PrimaryButton extends StatelessWidget {
     this.color,
     this.textColor,
     this.width,
+    this.height,
     this.icon,
     this.isOutlined = false,
   });
@@ -28,7 +30,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width ?? double.infinity,
-      height: 56,
+      height: height ?? 56,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: isOutlined ? Colors.transparent : (color ?? AppColors.cF9A405),
