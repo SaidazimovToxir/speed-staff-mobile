@@ -1,10 +1,11 @@
+import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
-import 'dart:io';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/widgets/auth_header.dart';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/widgets/custom_bottom_sheet_picker.dart';
-import 'package:speed_staff_mobile/features/shared/auth/presentation/widgets/step_progress_bar.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +29,7 @@ class _RegisterRestaurantScreenState extends State<RegisterRestaurantScreen> {
   String? _selectedCity;
   XFile? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -52,22 +54,69 @@ class _RegisterRestaurantScreenState extends State<RegisterRestaurantScreen> {
 
   final List<String> _cities = ["Tashkent", "Samarkand", "Bukhara", "Namangan", "Andijan", "Fergana", "Other"];
 
+  Future<void> _finalizeRegistration() async {
+    if (_restaurantNameController.text.isEmpty) {
+      toastification.show(
+        context: context,
+        title: Text('enter_restaurant_name'.tr()),
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        autoCloseDuration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    if (_imageFile != null) {
+      setState(() => _isUploading = true);
+      try {
+        final formData = FormData.fromMap({
+          'file': await MultipartFile.fromFile(_imageFile!.path, filename: 'avatar.png'),
+        });
+        await sl<DioClient>().post(
+          'https://api.speed-staff.uz/api/upload/avatar',
+          data: formData,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        toastification.show(
+          context: context,
+          title: Text('upload_logo_failed'.tr()),
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          autoCloseDuration: const Duration(seconds: 3),
+        );
+      } finally {
+        setState(() => _isUploading = false);
+      }
+    }
+
+    if (mounted) {
+      context.read<AuthBloc>().add(
+        FinalizeRegistrationEvent(
+          phone: widget.phone,
+          code: widget.code,
+          password: widget.phone,
+          role: 'employer',
+          restaurantName: _restaurantNameController.text,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    context.locale; // Force rebuild on language change
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: AppColors.white,
-        leading: CustomIconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.black),
-          onPressed: () => context.pop(),
-        ),
-        title: const CustomText(
-          text: "STEP 3 OF 3",
-          style: TextStyle(color: AppColors.c61677D, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5),
-        ),
-        centerTitle: true,
+        leading: context.canPop()
+            ? CustomIconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.black),
+                onPressed: () => context.pop(),
+              )
+            : null,
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -90,9 +139,7 @@ class _RegisterRestaurantScreenState extends State<RegisterRestaurantScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const StepProgressBar(currentStep: 3, totalSteps: 3),
-                  32.g,
-                  const AuthHeader(title: "Set up your restaurant", subtitle: "This helps workers find and trust you"),
+                  const AuthHeader(title: "restaurant_title", subtitle: "restaurant_subtitle"),
                   32.g,
                   Center(
                     child: Column(
@@ -129,21 +176,21 @@ class _RegisterRestaurantScreenState extends State<RegisterRestaurantScreen> {
                         ),
                         8.g,
                         const CustomText(
-                          text: "Upload Restaurant Logo",
+                          text: "upload_logo",
                           style: TextStyle(color: AppColors.cF9A405, fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                       ],
                     ),
                   ),
                   32.g,
-                  CustomTextField(controller: _restaurantNameController, hintText: "Cafe Milano", labelText: "Restaurant Name"),
+                  CustomTextField(controller: _restaurantNameController, hintText: "Cafe Milano", labelText: "restaurant_name"),
                   24.g,
                   GestureDetector(
                     onTap: () {
                       showCustomPicker(
                         context: context,
-                        title: "Select City",
-                        items: _cities,
+                        title: "select_city_title".tr(),
+                        items: _cities.map((e) => "city_${e.toLowerCase()}".tr()).toList(),
                         initialSelection: _selectedCity,
                         onSelected: (value) {
                           setState(() {
@@ -154,44 +201,22 @@ class _RegisterRestaurantScreenState extends State<RegisterRestaurantScreen> {
                     },
                     child: AbsorbPointer(
                       child: CustomTextField(
-                        hintText: _selectedCity ?? "Select city",
-                        labelText: "City",
+                        hintText: _selectedCity ?? "select_city_hint",
+                        labelText: "city",
                         suffixIcon: const Icon(Icons.keyboard_arrow_down, color: AppColors.c61677D),
                       ),
                     ),
                   ),
                   24.g,
-                  const CustomTextField(hintText: "+998 | 90 123 45 67", labelText: "Contact phone", keyboardType: TextInputType.phone),
+                  const CustomTextField(hintText: "+998 | 90 123 45 67", labelText: "contact_phone", keyboardType: TextInputType.phone),
                   32.g,
                   PrimaryButton(
-                    text: state is AuthLoading ? "Creating..." : "Create Restaurant Profile →",
-                    onPressed: state is AuthLoading
-                        ? () {}
-                        : () {
-                            if (_restaurantNameController.text.isEmpty) {
-                              toastification.show(
-                                context: context,
-                                title: const Text('Please enter restaurant name'),
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                              return;
-                            }
-                            context.read<AuthBloc>().add(
-                              FinalizeRegistrationEvent(
-                                phone: widget.phone,
-                                code: widget.code,
-                                password: widget.phone, // Passing phone as dummy password since UI has no field
-                                role: 'employer',
-                                restaurantName: _restaurantNameController.text,
-                              ),
-                            );
-                          },
+                    text: (state is AuthLoading || _isUploading) ? "creating" : "create_restaurant_profile",
+                    onPressed: (state is AuthLoading || _isUploading) ? () {} : _finalizeRegistration,
                   ),
                   16.g,
                   const CustomText(
-                    text: "By clicking \"Create Restaurant Profile\", you agree to Speed\nStaff's Terms of Service and Privacy Policy.",
+                    text: "restaurant_tos_agreement",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: AppColors.c61677D, height: 1.5),
                   ),

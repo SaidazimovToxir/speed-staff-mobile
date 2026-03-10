@@ -36,26 +36,26 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AuthHeader(title: "Who are you?", subtitle: "Choose your role to get started"),
+              const AuthHeader(title: "role_title", subtitle: "role_subtitle"),
               32.g,
               RoleCard(
                 icon: Icons.work_outline,
-                title: "I'm looking for work",
-                subtitle: "Waiter • Bartender • Cook • and more",
+                title: "role_worker_title",
+                subtitle: "role_worker_subtitle",
                 isSelected: _selectedRole == 0,
                 onTap: () => setState(() => _selectedRole = 0),
               ),
               16.g,
               RoleCard(
                 icon: Icons.restaurant,
-                title: "I'm hiring staff",
-                subtitle: "Post vacancies • Find workers fast",
+                title: "role_employer_title",
+                subtitle: "role_employer_subtitle",
                 isSelected: _selectedRole == 1,
                 onTap: () => setState(() => _selectedRole = 1),
               ),
               const Spacer(),
               PrimaryButton(
-                text: "Continue →",
+                text: "continue_btn",
                 onPressed: _selectedRole != -1
                     ? () {
                         if (_selectedRole == 0) {
@@ -67,13 +67,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                     : () {},
                 color: _selectedRole != -1 ? AppColors.cF9A405 : AppColors.cE0E5EC,
                 textColor: _selectedRole != -1 ? AppColors.white : AppColors.c61677D,
-              ),
-              16.g,
-              const Center(
-                child: CustomText(
-                  text: "Step 1 of 3",
-                  style: TextStyle(color: AppColors.c61677D),
-                ),
               ),
             ],
           ),

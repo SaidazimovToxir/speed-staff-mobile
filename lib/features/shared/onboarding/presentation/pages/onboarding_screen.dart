@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
+import 'package:speed_staff_mobile/features/shared/onboarding/presentation/widgets/language_selector.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -25,6 +26,11 @@ class OnboardingScreen extends StatelessWidget {
                       height: 200,
                       decoration: const BoxDecoration(color: AppColors.cF9A405, shape: BoxShape.circle),
                     ),
+                  ),
+                  const Positioned(
+                    top: 16,
+                    left: 24,
+                    child: LanguageSelector(),
                   ),
                   Positioned(
                     bottom: 50,
@@ -78,19 +84,19 @@ class OnboardingScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const CustomText(
-                      text: "Get hired at top\nrestaurants in minutes",
+                      text: "onboarding_title",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, height: 1.2),
                     ),
                     16.g,
                     const CustomText(
-                      text: "Create your profile once. Apply to\nmultiple restaurants. Get called the\nsame day.",
+                      text: "onboarding_subtitle",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: AppColors.c61677D, height: 1.5),
                     ),
                     const Spacer(),
                     PrimaryButton(
-                      text: "Get Started →",
+                      text: "get_started",
                       onPressed: () {
                         context.push(RouteNames.phoneInputScreen);
                       },

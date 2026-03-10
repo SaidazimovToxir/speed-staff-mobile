@@ -1,9 +1,10 @@
+import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
-import 'dart:io';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/widgets/auth_header.dart';
-import 'package:speed_staff_mobile/features/shared/auth/presentation/widgets/step_progress_bar.dart';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/widgets/custom_bottom_sheet_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -29,6 +30,7 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
   String? _selectedPosition;
   XFile? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -55,22 +57,70 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
 
   final List<String> _positions = ["Waiter", "Bartender", "Cook", "Chef", "Host", "Cashier", "Security", "Cleaner", "Other"];
 
+  Future<void> _finalizeRegistration() async {
+    if (_firstNameController.text.isEmpty || _lastNameController.text.isEmpty) {
+      toastification.show(
+        context: context,
+        title: Text('fill_all_fields'.tr()),
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        autoCloseDuration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    if (_imageFile != null) {
+      setState(() => _isUploading = true);
+      try {
+        final formData = FormData.fromMap({
+          'file': await MultipartFile.fromFile(_imageFile!.path, filename: 'avatar.png'),
+        });
+        await sl<DioClient>().post(
+          'https://api.speed-staff.uz/api/upload/avatar',
+          data: formData,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        toastification.show(
+          context: context,
+          title: Text('upload_photo_failed'.tr()),
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          autoCloseDuration: const Duration(seconds: 3),
+        );
+      } finally {
+        setState(() => _isUploading = false);
+      }
+    }
+
+    if (mounted) {
+      context.read<AuthBloc>().add(
+        FinalizeRegistrationEvent(
+          phone: widget.phone,
+          code: widget.code,
+          password: widget.phone,
+          role: 'seeker',
+          firstName: _firstNameController.text,
+          lastName: _lastNameController.text,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    context.locale; // Force rebuild on language change
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: AppColors.white,
-        leading: CustomIconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.black),
-          onPressed: () => context.pop(),
-        ),
-        title: const CustomText(
-          text: "STEP 3 OF 3",
-          style: TextStyle(color: AppColors.c61677D, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.5),
-        ),
-        centerTitle: true,
+        leading: context.canPop()
+            ? CustomIconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.black),
+                onPressed: () => context.pop(),
+              )
+            : null,
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -93,9 +143,7 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const StepProgressBar(currentStep: 3, totalSteps: 3),
-                  32.g,
-                  const AuthHeader(title: "Almost there!", subtitle: "Tell us a bit about yourself to complete your profile"),
+                  const AuthHeader(title: "worker_title", subtitle: "worker_subtitle"),
                   32.g,
                   Center(
                     child: Column(
@@ -132,23 +180,23 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                         ),
                         8.g,
                         const CustomText(
-                          text: "Upload Profile Photo",
+                          text: "upload_photo",
                           style: TextStyle(color: AppColors.cF9A405, fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                       ],
                     ),
                   ),
                   32.g,
-                  CustomTextField(controller: _firstNameController, hintText: "Alisher", labelText: "First name"),
+                  CustomTextField(controller: _firstNameController, hintText: "Alisher", labelText: "first_name"),
                   24.g,
-                  CustomTextField(controller: _lastNameController, hintText: "Karimov", labelText: "Last name"),
+                  CustomTextField(controller: _lastNameController, hintText: "Karimov", labelText: "last_name"),
                   24.g,
                   GestureDetector(
                     onTap: () {
                       showCustomPicker(
                         context: context,
-                        title: "Select Position",
-                        items: _positions,
+                        title: "select_position_title".tr(),
+                        items: _positions.map((e) => "position_${e.toLowerCase()}".tr()).toList(),
                         initialSelection: _selectedPosition,
                         onSelected: (value) {
                           setState(() {
@@ -159,43 +207,20 @@ class _RegisterWorkerScreenState extends State<RegisterWorkerScreen> {
                     },
                     child: AbsorbPointer(
                       child: CustomTextField(
-                        hintText: _selectedPosition ?? "Select your position",
-                        labelText: "I work as a...",
+                        hintText: _selectedPosition ?? "select_position_hint",
+                        labelText: "work_as",
                         suffixIcon: const Icon(Icons.keyboard_arrow_down, color: AppColors.c61677D),
                       ),
                     ),
                   ),
                   32.g,
                   PrimaryButton(
-                    text: state is AuthLoading ? "Creating..." : "Create My Profile →",
-                    onPressed: state is AuthLoading
-                        ? () {}
-                        : () {
-                            if (_firstNameController.text.isEmpty || _lastNameController.text.isEmpty) {
-                              toastification.show(
-                                context: context,
-                                title: const Text('Please fill all fields'),
-                                type: ToastificationType.error,
-                                style: ToastificationStyle.fillColored,
-                                autoCloseDuration: const Duration(seconds: 3),
-                              );
-                              return;
-                            }
-                            context.read<AuthBloc>().add(
-                              FinalizeRegistrationEvent(
-                                phone: widget.phone,
-                                code: widget.code,
-                                password: widget.phone, // Passing phone as dummy password since UI has no field
-                                role: 'seeker',
-                                firstName: _firstNameController.text,
-                                lastName: _lastNameController.text,
-                              ),
-                            );
-                          },
+                    text: (state is AuthLoading || _isUploading) ? "creating" : "create_profile",
+                    onPressed: (state is AuthLoading || _isUploading) ? () {} : _finalizeRegistration,
                   ),
                   16.g,
                   const CustomText(
-                    text: "By clicking \"Create My Profile\", you agree to Speed\nStaff's Terms of Service and Privacy Policy.",
+                    text: "worker_tos_agreement",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: AppColors.c61677D, height: 1.5),
                   ),
