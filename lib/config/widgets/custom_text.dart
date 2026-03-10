@@ -14,6 +14,7 @@ class CustomText extends StatelessWidget {
     this.decoration,
     this.letterSpacing,
     this.fontFamily,
+    this.height,
     this.style,
   });
 
@@ -27,6 +28,7 @@ class CustomText extends StatelessWidget {
   final TextOverflow? overflow;
   final TextDecoration? decoration;
   final double? letterSpacing;
+  final double? height;
   final TextStyle? style;
 
   @override
@@ -43,6 +45,7 @@ class CustomText extends StatelessWidget {
             fontWeight: fontWeight,
             color: color,
             letterSpacing: letterSpacing,
+            height: height,
           ),
       maxLines: maxLines,
       textAlign: textAlign,

@@ -20,4 +20,12 @@ class RouteNames {
   static const String main = '/main';
   static const String notifications = '/notifications';
   static const String restaurantDetail = '/detail';
+  static const String createVacancy = '/create_vacancy';
+  static const String vacancyApplications = '/vacancy_applications';
+  static const String candidateProfile = '/candidate_profile';
+  static const String employerDashboard = "/employer_dashboard";
+  static const String myVacancies = '/my_vacancies';
+  static const String applications = '/applications';
+  static const String restaurantProfile = '/restaurant_profile';
+  static const String editRestaurantProfile = '/edit_restaurant_profile';
 }

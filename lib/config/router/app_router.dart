@@ -54,6 +54,56 @@ class AppRouter {
         },
       ),
       GoRoute(path: RouteNames.notifications, builder: (context, state) => const NotificationsScreen()),
+       GoRoute(
+        path: RouteNames.createVacancy,
+        builder: (context, state) {
+          return const CreateVacancyScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.phoneInputScreen,
+        builder: (context, state) {
+          return const PhoneInputScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.employerDashboard,
+        builder: (context, state) {
+          return const EmployerHomeScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.myVacancies,
+        builder: (context, state) {
+          return const MyVacanciesScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.applications,
+        builder: (context, state) {
+          final id = state.extra as String? ?? '1';
+          return ApplicationsScreen(vacancyId: id);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.candidateProfile,
+        builder: (context, state) {
+          final id = state.extra as String? ?? '1';
+          return CandidateProfileScreen(candidateId: id);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.restaurantProfile,
+        builder: (context, state) {
+          return const EmployerProfileScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.editRestaurantProfile,
+        builder: (context, state) {
+          return const EditEmployerProfileScreen(); 
+        },
+      ),
     ],
   );
 }

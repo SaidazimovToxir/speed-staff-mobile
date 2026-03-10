@@ -1,6 +1,13 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/core/extensions/size_extension.dart';
 import 'package:speed_staff_mobile/config/router/route_names.dart';
+import 'package:speed_staff_mobile/features/employer/employer_home/presentation/pages/employer_home_screen.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/presentation/pages/my_vacancies_screen.dart';
+import 'package:speed_staff_mobile/features/employer/applications/presentation/pages/applications_screen.dart';
+import 'package:speed_staff_mobile/features/employer/profile/presentation/pages/employer_profile_screen.dart';
+import 'package:speed_staff_mobile/features/employer/applications/presentation/pages/candidate_profile_screen.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/presentation/pages/create_vacancy_screen.dart';
 import 'package:speed_staff_mobile/features/shared/splash/presentation/pages/splash_screen.dart';
 import 'package:speed_staff_mobile/features/shared/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/pages/role_selection_screen.dart';
@@ -14,5 +21,6 @@ import 'package:speed_staff_mobile/features/shared/auth/presentation/pages/succe
 import 'package:speed_staff_mobile/features/shared/tab_box/tab_box.dart';
 import 'package:speed_staff_mobile/features/user/user_home/presentation/pages/restaurant_detail_screen.dart';
 import 'package:speed_staff_mobile/features/shared/notifications/presentation/pages/notifications_screen.dart';
+import 'package:speed_staff_mobile/features/employer/profile/presentation/pages/edit_employer_profile_screen.dart';
 
 part 'app_router.dart';
