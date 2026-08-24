@@ -13,9 +13,7 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
     _initConnectivity();
 
     subscription = Connectivity().onConnectivityChanged.listen((status) async {
-      if (status.contains(ConnectivityResult.mobile) ||
-          status.contains(ConnectivityResult.wifi) ||
-          status.contains(ConnectivityResult.vpn)) {
+      if (status.contains(ConnectivityResult.mobile) || status.contains(ConnectivityResult.wifi) || status.contains(ConnectivityResult.vpn)) {
         add(ConnectedEvent());
       } else {
         add(DisconnectedEvent());
@@ -33,7 +31,6 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
 
   Future<void> _initConnectivity() async {
     final connectivityResult = await Connectivity().checkConnectivity();
-     print("nnn12 ${connectivityResult}");
     if (connectivityResult.contains(ConnectivityResult.mobile) ||
         connectivityResult.contains(ConnectivityResult.wifi) ||
         connectivityResult.contains(ConnectivityResult.vpn)) {

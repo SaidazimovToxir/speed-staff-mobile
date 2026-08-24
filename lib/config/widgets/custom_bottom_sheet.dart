@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/core/constants/app_colors.dart';
+import 'package:speed_staff_mobile/config/widgets/custom_text.dart';
+
 
 class CustomBottomSheet extends StatelessWidget {
   final Widget child;
@@ -76,7 +78,7 @@ class CustomBottomSheet extends StatelessWidget {
           children: [
             if (showIndicator) ...[
               SizedBox(height: 8),
-              Container(
+              SizedBox(
                 width: 38,
                 height: 6,
                 // decoration: BoxDecoration(color: AppTheme.modalIndicatorColor, borderRadius: BorderRadius.circular(2.r)),
@@ -90,8 +92,7 @@ class CustomBottomSheet extends StatelessWidget {
                 if (title != null)
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      title!,
+                    child: CustomText(text: title!,
                       style: titleStyle ?? Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                     ),
                   )

@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:speed_staff_mobile/config/app.dart';
 
 import 'config/config.dart';
@@ -14,7 +14,7 @@ void main() async {
 
     await EasyLocalization.ensureInitialized();
     EasyLocalization.logger.enableBuildModes = [];
-    Bloc.observer = MyBlocObserver();
+    // Bloc.observer = MyBlocObserver();
     await init();
 
     await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);

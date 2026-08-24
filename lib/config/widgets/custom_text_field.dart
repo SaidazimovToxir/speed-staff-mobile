@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'custom_icon_button.dart';
 
-import '../core/constants/constants.dart';
+import 'package:speed_staff_mobile/config/core/constants/constants.dart';
 
-class GlobalTextField extends StatefulWidget {
-  const GlobalTextField({
+class CustomTextField extends StatefulWidget {
+  const CustomTextField({
     super.key,
     this.hintText,
     this.suffixIcon,
     this.prefixIcon,
-    required this.textInputType,
-    required this.textInputAction,
+    this.textInputType = TextInputType.text,
+    this.textInputAction = TextInputAction.next,
+    this.keyboardType,
+    this.obscureText,
     this.controller,
     this.onChanged,
     this.labelText,
-    this.maxLine,
-    this.formatter,
+    this.maxLines,
+    this.inputFormatters,
     this.textAlign,
+    this.style,
     this.enabled = true,
     this.focusNode,
     this.onEditingComplete,
@@ -39,12 +43,15 @@ class GlobalTextField extends StatefulWidget {
   final String? labelText;
   final String? title;
   final TextInputType textInputType;
+  final TextInputType? keyboardType;
   final TextInputAction textInputAction;
+  final bool? obscureText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
-  final int? maxLine;
-  final List<TextInputFormatter>? formatter;
+  final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
   final TextAlign? textAlign;
+  final TextStyle? style;
   final bool? enabled;
   final FocusNode? focusNode;
   final VoidCallback? onEditingComplete;
@@ -60,11 +67,18 @@ class GlobalTextField extends StatefulWidget {
   final Widget? suffix;
 
   @override
-  State<GlobalTextField> createState() => _GlobalTextFieldState();
+  State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
-class _GlobalTextFieldState extends State<GlobalTextField> {
+class _CustomTextFieldState extends State<CustomTextField> {
   bool _isPasswordVisible = false;
+  late bool _shouldObscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _shouldObscure = widget.obscureText ?? (widget.textInputType == TextInputType.visiblePassword || widget.keyboardType == TextInputType.visiblePassword);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,20 +100,20 @@ class _GlobalTextFieldState extends State<GlobalTextField> {
       onEditingComplete: widget.onEditingComplete,
       enabled: widget.enabled,
       textAlign: widget.textAlign ?? TextAlign.start,
-      inputFormatters: widget.formatter,
-      maxLines: widget.maxLine ?? 1,
+      inputFormatters: widget.inputFormatters,
+      maxLines: widget.maxLines ?? 1,
       onChanged: widget.onChanged,
       controller: widget.controller,
-      keyboardType: widget.textInputType,
+      keyboardType: widget.keyboardType ?? widget.textInputType,
       textInputAction: widget.textInputAction,
-      obscureText: widget.textInputType == TextInputType.visiblePassword && !_isPasswordVisible,
-      style: TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500),
+      obscureText: _shouldObscure && !_isPasswordVisible,
+      style: widget.style ?? const TextStyle(color: AppColors.black, fontSize: 14, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         filled: true,
         fillColor: widget.fillColor ?? AppColors.white,
-        suffixIcon: widget.textInputType == TextInputType.visiblePassword
-            ? IconButton(
-                splashRadius: 1,
+        suffixIcon: widget.textInputType == TextInputType.visiblePassword || widget.keyboardType == TextInputType.visiblePassword || widget.obscureText == true
+            ? CustomIconButton(
+                padding: EdgeInsets.zero,
                 icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.c1F3C88),
                 onPressed: () {
                   setState(() {

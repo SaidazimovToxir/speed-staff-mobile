@@ -27,7 +27,15 @@ extension OrientationExtension on Orientation {
 extension Space on num {
   Gap get g => Gap(toDouble());
 
-  double get ph => (MediaQuery.sizeOf(rootNavigatorKey.currentContext!).height * ((toDouble() / 8.12) / 100)).ceilToDouble();
+  double get ph {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx == null) return 0.0;
+    return (MediaQuery.sizeOf(ctx).height * ((toDouble() / 8.12) / 100)).ceilToDouble();
+  }
 
-  double get pw => (MediaQuery.sizeOf(rootNavigatorKey.currentContext!).width * ((toDouble() / 3.75) / 100)).ceilToDouble();
+  double get pw {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx == null) return 0.0;
+    return (MediaQuery.sizeOf(ctx).width * ((toDouble() / 3.75) / 100)).ceilToDouble();
+  }
 }

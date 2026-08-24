@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:speed_staff_mobile/config/router/route_names.dart';
-import 'package:speed_staff_mobile/config/router/route_part.dart';
+import 'package:speed_staff_mobile/config/router/router.dart';
 import 'package:toastification/toastification.dart';
 
 import 'core/constants/constants.dart';
 import 'core/providers/bloc_providers.dart';
+import 'package:speed_staff_mobile/config/widgets/custom_icon_button.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -35,7 +35,8 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
     return MultiBlocProvider(
       providers: MyBlocProviders.providers,
       child: ToastificationWrapper(
-        child: MaterialApp(
+        child: MaterialApp.router(
+          routerConfig: AppRouter.router,
           locale: context.locale,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
@@ -74,16 +75,13 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
             actionIconTheme: ActionIconThemeData(
-              backButtonIconBuilder: (BuildContext context) => IconButton(
+              backButtonIconBuilder: (BuildContext context) => CustomIconButton(
                 onPressed: () => Navigator.maybePop(context),
-                icon: Icon(Icons.arrow_back, color: AppColors.white),
+                icon: const Icon(Icons.arrow_back, color: AppColors.white),
               ),
             ),
           ),
-          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
-          initialRoute: RouteNames.tabBox,
-          onGenerateRoute: AppRoutes.generateRoute,
         ),
       ),
     );
