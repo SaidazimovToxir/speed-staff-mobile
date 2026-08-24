@@ -127,9 +127,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> with SingleTickerPr
                         ),
                         Expanded(
                           child: GestureDetector(
-                            onTap: () {
-                              // TODO: Navigate to Terms of Service
-                            },
+                            onTap: () {},
                             child: Padding(
                               padding: const EdgeInsets.only(top: 12.0),
                               child: RichText(

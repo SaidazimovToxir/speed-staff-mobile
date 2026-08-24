@@ -1,10 +1,10 @@
-﻿import 'package:speed_staff_mobile/features/employer/vacancies/domain/entities/vacancy_entity.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/domain/entities/vacancy_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
 import 'package:go_router/go_router.dart';
 
 class VacancyItemCard extends StatelessWidget {
-  final VacancyEntity vacancy;
+  final Vacancy vacancy;
   const VacancyItemCard({super.key, required this.vacancy});
   @override
   Widget build(BuildContext context) {
@@ -60,13 +60,13 @@ class VacancyItemCard extends StatelessWidget {
           ),
           14.g,
           CustomText(
-            text: vacancy.role,
+            text: vacancy.title,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
           4.g,
           CustomText(
-            text: "${vacancy.company} • Posted 2d ago",
+            text: "${vacancy.employer?.restaurantName ?? 'Unknown'} • Posted 2d ago",
             fontSize: 12,
             color: Colors.grey.shade600,
           ),
@@ -76,7 +76,7 @@ class VacancyItemCard extends StatelessWidget {
               const Icon(Icons.people_outline, size: 18, color: Colors.grey),
               6.g,
               CustomText(
-                text: "${vacancy.appliedCount} Total",
+                text: "${vacancy.applicationsCount} Total",
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.grey.shade600,
@@ -85,14 +85,14 @@ class VacancyItemCard extends StatelessWidget {
               const Icon(Icons.bolt, size: 18, color: AppColors.cF9A405),
               4.g,
               CustomText(
-                text: "${vacancy.newCount} New",
+                text: "${vacancy.viewsCount} Views",
                 fontSize: 12,
                 color: AppColors.cF9A405,
                 fontWeight: FontWeight.w700,
               ),
               const Spacer(),
               InkWell(
-                onTap: () => context.push("${RouteNames.vacancyApplications}/${vacancy.id}"),
+                onTap: () => context.push(RouteNames.applications, extra: vacancy.id),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

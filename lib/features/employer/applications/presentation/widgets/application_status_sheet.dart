@@ -1,75 +1,57 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
 import 'package:go_router/go_router.dart';
 
 class _StatusOption {
   final String status;
+  final String label;
   final String subtitle;
-  final Widget icon;
+  final IconData icon;
+  final Color color;
 
-  const _StatusOption({required this.status, required this.subtitle, required this.icon});
+  const _StatusOption({
+    required this.status,
+    required this.label,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+  });
 }
 
-class ApplicationStatusSheet extends StatefulWidget {
-  final Function(String) onStatusSelected;
+const _allOptions = [
+  _StatusOption(status: 'shortlisted', label: "Tanlash", subtitle: "Ushbu nomzod qiziqarli", icon: Icons.star_rounded, color: Colors.amber),
+  _StatusOption(status: 'hired', label: "Qabul qilish", subtitle: "Ushbu nomzodni ishga qabul qilamiz", icon: Icons.check_circle_rounded, color: Colors.green),
+  _StatusOption(status: 'rejected', label: "Rad etish", subtitle: "Ushbu safar mos kelmadi", icon: Icons.cancel_rounded, color: Colors.red),
+];
 
-  const ApplicationStatusSheet({super.key, required this.onStatusSelected});
+class ApplicationStatusSheet extends StatefulWidget {
+  final String currentStatus;
+  final List<String> allowedTransitions;
+  final void Function(String status, String? note) onStatusSelected;
+
+  const ApplicationStatusSheet({
+    super.key,
+    required this.currentStatus,
+    required this.allowedTransitions,
+    required this.onStatusSelected,
+  });
 
   @override
   State<ApplicationStatusSheet> createState() => _ApplicationStatusSheetState();
 }
 
 class _ApplicationStatusSheetState extends State<ApplicationStatusSheet> {
-  String _selectedStatus = 'Viewed';
+  String? _selectedStatus;
   final TextEditingController _noteController = TextEditingController();
 
-  final List<_StatusOption> _options = [
-    _StatusOption(
-      status: 'Sent',
-      subtitle: 'Initial state',
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(10)),
-        child: Icon(Icons.send_outlined, color: Colors.blue.shade400, size: 22),
-      ),
-    ),
-    _StatusOption(
-      status: 'Viewed',
-      subtitle: 'You reviewed this profile',
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: AppColors.cF9A405.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-        child: const Icon(Icons.remove_red_eye_outlined, color: AppColors.cF9A405, size: 22),
-      ),
-    ),
-    _StatusOption(
-      status: 'Shortlisted',
-      subtitle: 'Candidate looks promising',
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.amber.shade50, borderRadius: BorderRadius.circular(10)),
-        child: Icon(Icons.star_outline, color: Colors.amber.shade600, size: 22),
-      ),
-    ),
-    _StatusOption(
-      status: 'Hired',
-      subtitle: 'You hired this person',
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(10)),
-        child: Icon(Icons.check_circle, color: Colors.green.shade600, size: 22),
-      ),
-    ),
-    _StatusOption(
-      status: 'Rejected',
-      subtitle: 'Not a fit this time',
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(10)),
-        child: const Icon(Icons.close, color: Colors.red, size: 22),
-      ),
-    ),
-  ];
+  List<_StatusOption> get _availableOptions =>
+      _allOptions.where((o) => widget.allowedTransitions.contains(o.status)).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedStatus = _availableOptions.isNotEmpty ? _availableOptions.first.status : null;
+  }
 
   @override
   void dispose() {
@@ -79,13 +61,14 @@ class _ApplicationStatusSheetState extends State<ApplicationStatusSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final bottom = MediaQuery.paddingOf(context).bottom + MediaQuery.viewInsetsOf(context).bottom;
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + MediaQuery.viewInsetsOf(context).bottom),
+      padding: EdgeInsets.only(bottom: bottom),
       child: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -93,35 +76,36 @@ class _ApplicationStatusSheetState extends State<ApplicationStatusSheet> {
           children: [
             Center(
               child: Container(
-                width: 48, height: 5,
+                width: 44, height: 5,
                 decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10)),
               ),
             ),
-            24.g,
+            20.g,
             const Center(
-              child: CustomText(
-                text: "Update Status",
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
+              child: CustomText(text: "Status yangilash", fontSize: 18, fontWeight: FontWeight.w800),
             ),
-            24.g,
-            ..._options.map((opt) => _buildRow(opt)),
-            24.g,
-            const CustomText(text: "Add a Note (Optional)", fontSize: 13, fontWeight: FontWeight.w700),
-            12.g,
+            20.g,
+            ..._availableOptions.map((opt) => _buildRow(opt)),
+            16.g,
+            const CustomText(text: "Izoh (ixtiyoriy)", fontSize: 13, fontWeight: FontWeight.w700),
+            10.g,
             CustomTextField(
               controller: _noteController,
-              hintText: 'e.g., Candidates profile looks good, let\'s interview...',
-              maxLines: 4,
+              hintText: "Masalan: Siz bilan bog'lanamiz...",
+              maxLines: 3,
             ),
-            24.g,
+            20.g,
             PrimaryButton(
-              text: 'Update Status',
-              onPressed: () {
-                widget.onStatusSelected(_selectedStatus);
-                context.pop();
-              },
+              text: "Saqlash",
+              onPressed: _selectedStatus != null
+                  ? () {
+                      widget.onStatusSelected(
+                        _selectedStatus!,
+                        _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+                      );
+                      context.pop();
+                    }
+                  : () {},
             ),
           ],
         ),
@@ -134,32 +118,43 @@ class _ApplicationStatusSheetState extends State<ApplicationStatusSheet> {
     return GestureDetector(
       onTap: () => setState(() => _selectedStatus = opt.status),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.cF9A405.withValues(alpha: 0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? opt.color.withValues(alpha: 0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? AppColors.cF9A405 : Colors.grey.shade100,
+            color: isSelected ? opt.color : Colors.grey.shade100,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
-            opt.icon,
-            16.g,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: opt.color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(opt.icon, color: opt.color, size: 20),
+            ),
+            14.g,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomText(text: opt.status, fontSize: 14, fontWeight: FontWeight.w800, color: isSelected ? AppColors.cF9A405 : Colors.black),
-                  2.g,
+                  CustomText(
+                    text: opt.label,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? opt.color : Colors.black,
+                  ),
+                  3.g,
                   CustomText(text: opt.subtitle, fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
                 ],
               ),
             ),
-            if (isSelected)
-              const Icon(Icons.check_circle_rounded, color: AppColors.cF9A405, size: 24),
+            if (isSelected) Icon(Icons.check_circle_rounded, color: opt.color, size: 22),
           ],
         ),
       ),

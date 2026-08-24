@@ -18,7 +18,7 @@ Future<void> _registerAuthDependencies() async {
   sl.registerLazySingleton(() => Logout(sl()));
 
   // Bloc
-  sl.registerFactory(
+  sl.registerLazySingleton(
     () => AuthBloc(
       sendOtpUseCase: sl(),
       verifyOtpUseCase: sl(),

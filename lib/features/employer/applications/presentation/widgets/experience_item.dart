@@ -1,10 +1,27 @@
-﻿import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
 
+/// Seeker work experience ma'lumotlari (API dan kelmaydi, local struktura)
+class WorkExperienceData {
+  final String company;
+  final String role;
+  final String period;
+  final String description;
+  final bool isPresent;
+
+  const WorkExperienceData({
+    required this.company,
+    required this.role,
+    required this.period,
+    required this.description,
+    this.isPresent = false,
+  });
+}
+
 class ExperienceItem extends StatelessWidget {
-  final ExperienceEntity experience;
+  final WorkExperienceData experience;
   const ExperienceItem({super.key, required this.experience});
+
   @override
   Widget build(BuildContext context) {
     return Row(

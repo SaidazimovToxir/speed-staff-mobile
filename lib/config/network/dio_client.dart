@@ -57,6 +57,26 @@ class DioClient {
     }
   }
 
+  /// Makes a PUT request to the specified [path]
+  Future<Response<T>> put<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, Options? options, CancelToken? cancelToken}) async {
+    try {
+      final response = await _dio.put<T>(path, data: data, queryParameters: queryParameters, options: options, cancelToken: cancelToken);
+      return response;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Makes a PATCH request to the specified [path]
+  Future<Response<T>> patch<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, Options? options, CancelToken? cancelToken}) async {
+    try {
+      final response = await _dio.patch<T>(path, data: data, queryParameters: queryParameters, options: options, cancelToken: cancelToken);
+      return response;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   /// Makes a DELETE request to the specified [path]
   Future<Response<T>> delete<T>(String path, {Map<String, dynamic>? queryParameters, Options? options, CancelToken? cancelToken}) async {
     try {

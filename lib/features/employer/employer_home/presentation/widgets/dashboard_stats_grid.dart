@@ -5,7 +5,7 @@ import 'package:speed_staff_mobile/config/config.dart';
 import 'package:speed_staff_mobile/features/employer/employer_home/presentation/widgets/stat_card.dart';
 
 class DashboardStatsGrid extends StatelessWidget {
-  final EmployerStatsEntity stats;
+  final DashboardStats stats;
   const DashboardStatsGrid({super.key, required this.stats});
   @override
   Widget build(BuildContext context) {
@@ -33,13 +33,13 @@ class DashboardStatsGrid extends StatelessWidget {
             iconData: Icons.person_outline_rounded,
             iconColor: Colors.blue.shade600,
             iconBgColor: Colors.blue.shade50,
-            onActionTap: () => context.push(RouteNames.applications, extra: '1'),
+            onActionTap: () => context.push(RouteNames.myVacancies),
             isDashed: true, // Optional: if I want to implement dashed border
           ),
           20.g,
           StatCard(
             label: "New today",
-            value: "+${stats.newToday}",
+            value: "+${stats.newApplicationsToday}",
             valueColor: AppColors.cF9A405,
             subtitle: "New candidates",
             actionText: "↗ Highest this week",

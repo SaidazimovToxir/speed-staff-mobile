@@ -1,7 +1,10 @@
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/core/extensions/size_extension.dart';
 import 'package:speed_staff_mobile/config/router/route_names.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:speed_staff_mobile/config/core/di/injection_container.dart';
+import 'package:speed_staff_mobile/features/employer/applications/presentation/bloc/applications_bloc.dart';
+import 'package:speed_staff_mobile/features/employer/applications/presentation/pages/application_detail_screen.dart';
 import 'package:speed_staff_mobile/features/employer/employer_home/presentation/pages/employer_home_screen.dart';
 import 'package:speed_staff_mobile/features/employer/vacancies/presentation/pages/my_vacancies_screen.dart';
 import 'package:speed_staff_mobile/features/employer/applications/presentation/pages/applications_screen.dart';
@@ -22,5 +25,18 @@ import 'package:speed_staff_mobile/features/shared/tab_box/tab_box.dart';
 import 'package:speed_staff_mobile/features/user/user_home/presentation/pages/restaurant_detail_screen.dart';
 import 'package:speed_staff_mobile/features/shared/notifications/presentation/pages/notifications_screen.dart';
 import 'package:speed_staff_mobile/features/employer/profile/presentation/pages/edit_employer_profile_screen.dart';
+
+// Seeker routing imports
+import 'package:speed_staff_mobile/features/seeker/vacancies/presentation/pages/seeker_search_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/vacancies/presentation/pages/saved_vacancies_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/pages/seeker_profile_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/pages/skill_selection_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/pages/edit_seeker_profile_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/pages/seeker_documents_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/pages/add_experience_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/vacancies/presentation/pages/vacancy_detail_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/vacancies/presentation/pages/apply_vacancy_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/domain/entities/seeker_experience.dart';
+import 'package:speed_staff_mobile/features/seeker/vacancies/domain/entities/vacancy.dart';
 
 part 'app_router.dart';

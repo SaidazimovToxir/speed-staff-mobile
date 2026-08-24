@@ -9,28 +9,40 @@ abstract class ApplicationsEvent extends Equatable {
 
 class LoadVacancyApplications extends ApplicationsEvent {
   final String vacancyId;
-  const LoadVacancyApplications(this.vacancyId);
+  final String? status;
+  final int page;
+  final int limit;
 
-  @override
-  List<Object?> get props => [vacancyId];
-}
-
-class LoadCandidateDetails extends ApplicationsEvent {
-  final String candidateId;
-  const LoadCandidateDetails(this.candidateId);
-
-  @override
-  List<Object?> get props => [candidateId];
-}
-
-class UpdateApplicationStatusEvent extends ApplicationsEvent {
-  final String candidateId;
-  final String newStatus;
-  const UpdateApplicationStatusEvent({
-    required this.candidateId,
-    required this.newStatus,
+  const LoadVacancyApplications(
+    this.vacancyId, {
+    this.status,
+    this.page = 1,
+    this.limit = 50,
   });
 
   @override
-  List<Object?> get props => [candidateId, newStatus];
+  List<Object?> get props => [vacancyId, status, page, limit];
+}
+
+class LoadApplicationDetail extends ApplicationsEvent {
+  final String applicationId;
+  const LoadApplicationDetail(this.applicationId);
+
+  @override
+  List<Object?> get props => [applicationId];
+}
+
+class UpdateApplicationStatusEvent extends ApplicationsEvent {
+  final String applicationId;
+  final String newStatus;
+  final String? employerNote;
+
+  const UpdateApplicationStatusEvent({
+    required this.applicationId,
+    required this.newStatus,
+    this.employerNote,
+  });
+
+  @override
+  List<Object?> get props => [applicationId, newStatus, employerNote];
 }

@@ -7,4 +7,4 @@ abstract class EmployerHomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadEmployerDashboard extends EmployerHomeEvent {}
+class LoadDashboardStats extends EmployerHomeEvent {}

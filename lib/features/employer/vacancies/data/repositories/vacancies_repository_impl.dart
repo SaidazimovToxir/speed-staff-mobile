@@ -10,9 +10,9 @@ class VacanciesRepositoryImpl implements VacanciesRepository {
   VacanciesRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, List<VacancyEntity>>> getMyVacancies() async {
+  Future<Either<Failure, List<Vacancy>>> getMyVacancies({int page = 1, int limit = 50}) async {
     try {
-      final vacancies = await remoteDataSource.getMyVacancies();
+      final vacancies = await remoteDataSource.getMyVacancies(page: page, limit: limit);
       return Right(vacancies);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
@@ -20,9 +20,39 @@ class VacanciesRepositoryImpl implements VacanciesRepository {
   }
 
   @override
-  Future<Either<Failure, void>> createVacancy(Map<String, dynamic> vacancyData) async {
+  Future<Either<Failure, Vacancy>> createVacancy(Map<String, dynamic> data) async {
     try {
-      await remoteDataSource.createVacancy(vacancyData);
+      final vacancy = await remoteDataSource.createVacancy(data);
+      return Right(vacancy);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Vacancy>> updateVacancy(String id, Map<String, dynamic> data) async {
+    try {
+      final vacancy = await remoteDataSource.updateVacancy(id, data);
+      return Right(vacancy);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changeVacancyStatus(String id, String status) async {
+    try {
+      await remoteDataSource.changeVacancyStatus(id, status);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteVacancy(String id) async {
+    try {
+      await remoteDataSource.deleteVacancy(id);
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

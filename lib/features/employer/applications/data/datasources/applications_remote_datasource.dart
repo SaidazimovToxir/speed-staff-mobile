@@ -1,85 +1,89 @@
+import 'package:speed_staff_mobile/config/core/constants/api_constants.dart';
+import 'package:speed_staff_mobile/config/core/error/exceptions.dart';
+import 'package:speed_staff_mobile/config/network/dio_client.dart';
+import 'package:speed_staff_mobile/features/employer/applications/data/models/application_model.dart';
 import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 
 abstract class ApplicationsRemoteDataSource {
-  Future<List<CandidateEntity>> getVacancyApplications();
-  Future<CandidateEntity> getCandidateDetails(String candidateId);
-  Future<String> updateApplicationStatus(String newStatus);
+  Future<PaginatedApplications> getVacancyApplications(
+    String vacancyId, {
+    String? status,
+    int page = 1,
+    int limit = 50,
+  });
+
+  Future<ApplicationDetailEntity> getApplicationDetail(String applicationId);
+
+  Future<ApplicationDetailEntity> updateApplicationStatus(
+    String applicationId,
+    String status, {
+    String? employerNote,
+  });
 }
 
-class ApplicationsMockDataSourceImpl implements ApplicationsRemoteDataSource {
+class ApplicationsRemoteDataSourceImpl implements ApplicationsRemoteDataSource {
+  final DioClient _dioClient;
+
+  ApplicationsRemoteDataSourceImpl(this._dioClient);
+
+
   @override
-  Future<List<CandidateEntity>> getVacancyApplications() async {
-    await Future.delayed(const Duration(seconds: 1));
-    return [
-      CandidateEntity(
-        id: "1",
-        name: "John Doe",
-        role: "Shortlisted",
-        rating: "4.8",
-        reviewCount: "2h ago",
-      ),
-      CandidateEntity(
-        id: "2",
-        name: "Sarah Jenkins",
-        role: "New",
-        rating: "4.6",
-        reviewCount: "5h ago",
-      ),
-      CandidateEntity(
-        id: "3",
-        name: "Michael Chen",
-        role: "Interviewing",
-        rating: "4.9",
-        reviewCount: "1d ago",
-      ),
-      CandidateEntity(
-        id: "4",
-        name: "Elena Rodriguez",
-        role: "New",
-        rating: "4.7",
-        reviewCount: "2d ago",
-      ),
-    ];
+  Future<PaginatedApplications> getVacancyApplications(
+    String vacancyId, {
+    String? status,
+    int page = 1,
+    int limit = 50,
+  }) async {
+    try {
+      final params = <String, dynamic>{'page': page, 'limit': limit};
+      if (status != null) params['status'] = status;
+
+      final response = await _dioClient.get(
+        '${ApiConstants.vacancies}/$vacancyId/applications',
+        queryParameters: params,
+      );
+      final data = response.data as Map<String, dynamic>;
+      return PaginatedApplicationsModel.fromJson(data);
+    } catch (e) {
+      if (e is ServerException) rethrow;
+      throw ServerException(e.toString());
+    }
   }
 
   @override
-  Future<CandidateEntity> getCandidateDetails(String candidateId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return CandidateEntity(
-      id: candidateId,
-      name: "Alisher Karimov",
-      role: "Senior Barista",
-      rating: "4.8",
-      reviewCount: "124 reviews",
-      skills: [
-        "Coffee Art",
-        "Customer Service",
-        "Cash Handling",
-        "Team Management",
-        "Inventory Mgmt",
-      ],
-      experiences: [
-        ExperienceEntity(
-          company: "Gourmet Coffee Lab",
-          role: "Lead Barista",
-          period: "Jan 2021 - Present • 3 yrs 2 mos",
-          description:
-              "Managing a team of 5 baristas, overseeing daily operations, and ensuring top-tier customer satisfaction.",
-          isPresent: true,
-        ),
-      ],
-      documents: [
-        DocumentEntity(
-          name: "Resume_Alisher_K.pdf",
-          info: "1.2 MB • Updated 2 days ago",
-        ),
-      ],
-    );
+  Future<ApplicationDetailEntity> getApplicationDetail(String applicationId) async {
+    try {
+      final response = await _dioClient.get(
+        '${ApiConstants.applications}/$applicationId',
+      );
+      final data = response.data as Map<String, dynamic>;
+      return ApplicationDetailModel.fromJson(data);
+    } catch (e) {
+      if (e is ServerException) rethrow;
+      throw ServerException(e.toString());
+    }
   }
 
   @override
-  Future<String> updateApplicationStatus(String newStatus) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return newStatus;
+  Future<ApplicationDetailEntity> updateApplicationStatus(
+    String applicationId,
+    String status, {
+    String? employerNote,
+  }) async {
+    try {
+      final body = <String, dynamic>{'status': status};
+      if (employerNote != null && employerNote.isNotEmpty) {
+        body['employer_note'] = employerNote;
+      }
+      final response = await _dioClient.patch(
+        '${ApiConstants.applications}/$applicationId/status',
+        data: body,
+      );
+      final data = response.data as Map<String, dynamic>;
+      return ApplicationDetailModel.fromJson(data);
+    } catch (e) {
+      if (e is ServerException) rethrow;
+      throw ServerException(e.toString());
+    }
   }
 }

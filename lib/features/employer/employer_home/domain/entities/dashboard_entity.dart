@@ -1,14 +1,17 @@
-import 'package:equatable/equatable.dart';
+class DashboardStats {
+  final int activeVacancies;
+  final int pausedVacancies;
+  final int totalApplications;
+  final int newApplicationsToday;
+  final int totalViews;
+  final bool profileComplete;
 
-class EmployerStatsEntity extends Equatable {
-  final String activeVacancies;
-  final String totalApplications;
-  final String newToday;
-  const EmployerStatsEntity({
+  const DashboardStats({
     required this.activeVacancies,
+    required this.pausedVacancies,
     required this.totalApplications,
-    required this.newToday,
+    required this.newApplicationsToday,
+    required this.totalViews,
+    required this.profileComplete,
   });
-  @override
-  List<Object?> get props => [activeVacancies, totalApplications, newToday];
 }

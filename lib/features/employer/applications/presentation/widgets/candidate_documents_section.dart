@@ -1,13 +1,14 @@
-﻿import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
 import 'package:speed_staff_mobile/features/employer/applications/presentation/widgets/document_item.dart';
 
 class CandidateDocumentsSection extends StatelessWidget {
-  final List<DocumentEntity> documents;
+  final List<DocumentData> documents;
   const CandidateDocumentsSection({super.key, required this.documents});
+
   @override
   Widget build(BuildContext context) {
+    if (documents.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

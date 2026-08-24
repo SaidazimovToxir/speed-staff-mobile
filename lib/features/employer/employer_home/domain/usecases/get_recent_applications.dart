@@ -8,7 +8,7 @@ class GetRecentApplications {
 
   GetRecentApplications(this.repository);
 
-  Future<Either<Failure, List<ApplicationEntity>>> call() {
+  Future<Either<Failure, List<ApplicationShortEntity>>> call() {
     return repository.getRecentApplications();
   }
 }

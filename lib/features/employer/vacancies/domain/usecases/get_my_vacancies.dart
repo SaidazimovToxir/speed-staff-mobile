@@ -8,7 +8,7 @@ class GetMyVacancies {
 
   GetMyVacancies(this.repository);
 
-  Future<Either<Failure, List<VacancyEntity>>> call() {
-    return repository.getMyVacancies();
+  Future<Either<Failure, List<Vacancy>>> call({int page = 1, int limit = 50}) {
+    return repository.getMyVacancies(page: page, limit: limit);
   }
 }

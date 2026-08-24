@@ -1,16 +1,31 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speed_staff_mobile/config/config.dart';
-import 'package:speed_staff_mobile/config/router/route_names.dart';
 import 'package:speed_staff_mobile/features/employer/profile/presentation/bloc/employer_profile_bloc.dart';
+import 'package:speed_staff_mobile/features/employer/profile/presentation/bloc/employer_profile_event.dart';
 import 'package:speed_staff_mobile/features/employer/profile/presentation/bloc/employer_profile_state.dart';
 import 'package:speed_staff_mobile/features/employer/profile/presentation/widgets/employer_profile_header.dart';
-import 'package:speed_staff_mobile/features/employer/vacancies/domain/entities/vacancy_entity.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/presentation/bloc/vacancies_bloc.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/presentation/bloc/vacancies_event.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/presentation/bloc/vacancies_state.dart';
 import 'package:speed_staff_mobile/features/employer/vacancies/presentation/widgets/vacancy_item_card.dart';
 
-class EmployerProfileScreen extends StatelessWidget {
+class EmployerProfileScreen extends StatefulWidget {
   const EmployerProfileScreen({super.key});
+
+  @override
+  State<EmployerProfileScreen> createState() => _EmployerProfileScreenState();
+}
+
+class _EmployerProfileScreenState extends State<EmployerProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<VacanciesBloc>().add(const LoadMyVacancies(page: 1, limit: 10));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,113 +33,130 @@ class EmployerProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.white,
       body: BlocBuilder<EmployerProfileBloc, EmployerProfileState>(
         builder: (context, state) {
-          switch (state) {
-            case EmployerProfileLoading():
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.c1F3C88),
-              );
-            case EmployerProfileLoaded(profileData: final data):
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    EmployerProfileHeader(data: data),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        children: [
-                          24.g,
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.grey.shade100),
-                              boxShadow: [
-                                BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 6))
-                              ],
+          switch (state.status) {
+            case ProfileStatus.loading:
+              return const Center(child: CircularProgressIndicator(color: AppColors.c1F3C88));
+            case ProfileStatus.success:
+              final data = state.profile;
+              if (data == null) return const SizedBox();
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<EmployerProfileBloc>().add(LoadEmployerProfile());
+                  context.read<VacanciesBloc>().add(const LoadMyVacancies(page: 1, limit: 10));
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      EmployerProfileHeader(data: data),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          children: [
+                            24.g,
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.grey.shade100),
+                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 6))],
+                              ),
+                              child: BlocBuilder<VacanciesBloc, VacanciesState>(
+                                builder: (context, vState) {
+                                  final activeJobs = vState.vacancies.where((v) => v.status?.toLowerCase() == 'active').length;
+                                  final totalHired = data.totalReviews ?? 0;
+
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      _buildStat((data.rating ?? 0.0).toStringAsFixed(1), "Rating"),
+                                      _buildVerticalDivider(),
+                                      _buildStat(activeJobs.toString(), "Active Jobs"),
+                                      _buildVerticalDivider(),
+                                      _buildStat(totalHired.toString(), "Reviews"),
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _buildStat("4.8", "Rating"),
-                                _buildVerticalDivider(),
-                                _buildStat("12", "Active Jobs"),
-                                _buildVerticalDivider(),
-                                _buildStat("850", "Total Hired"),
-                              ],
+                            24.g,
+                            SizedBox(
+                              width: double.infinity,
+                              child: PrimaryButton(
+                                text: "Edit Profile",
+                                onPressed: () {
+                                  context.push(RouteNames.editRestaurantProfile);
+                                },
+                              ),
                             ),
-                          ),
-                          24.g,
-                          SizedBox(
-                            width: double.infinity,
-                            child: PrimaryButton(
-                              text: "Edit Profile",
-                              onPressed: () {
-                                context.push(RouteNames.editRestaurantProfile);
-                              },
-                            ),
-                          ),
-                          32.g,
-                        ],
-                      ),
-                    ),
-                    _buildSection(
-                      title: "About",
-                      child: CustomText(
-                        text: data['about'] ?? "The Golden Grill is a premier destination for world-class culinary experiences, using quality ingredients and traditional cooking techniques.",
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    8.g,
-                    _buildSection(
-                      title: "Active Vacancies",
-                      trailing: const CustomText(text: "View all", fontSize: 13, color: AppColors.cF9A405, fontWeight: FontWeight.bold),
-                      child: VacancyItemCard(
-                        vacancy: VacancyEntity(
-                          id: '1', role: 'Senior Barista', company: 'The Golden Grill',
-                          location: 'Tashkent, UZ', status: 'Active', appliedCount: '24', newCount: '5',
+                            32.g,
+                          ],
                         ),
                       ),
-                    ),
-                    8.g,
-                    _buildSection(
-                      title: "Recent Reviews",
-                      trailing: const CustomText(text: "View all", fontSize: 13, color: AppColors.cF9A405, fontWeight: FontWeight.bold),
-                      child: Column(
-                        children: [
-                          _buildReview("Jane Blu", "Amazing team environment and great tips management. Really appreciate the spirit during peak hours.", 5),
-                          const Divider(height: 24),
-                          _buildReview("Larah White", "High quality espresso to work with. Management is very organized, very much makes our job easier.", 5),
-                          const Divider(height: 24),
-                          _buildReview("Marcus King", "Fast paced but rewarding. Love the energy. Work life availability right.", 4),
-                        ],
-                      ),
-                    ),
-                    16.g,
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.c1F3C88,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          icon: const Icon(Icons.campaign_outlined, color: Colors.white),
-                          label: const CustomText(text: "Announcement", color: Colors.white, fontWeight: FontWeight.bold),
+                      if (data.description != null && data.description!.isNotEmpty) ...[
+                        _buildSection(
+                          title: "About",
+                          child: CustomText(text: data.description!, fontSize: 14, color: Colors.grey.shade600),
                         ),
+                        8.g,
+                      ],
+                      BlocBuilder<VacanciesBloc, VacanciesState>(
+                        builder: (context, vState) {
+                          final activeVacancies = vState.vacancies.where((v) => v.status?.toLowerCase() == 'active').take(3).toList();
+                          if (activeVacancies.isEmpty) return const SizedBox();
+
+                          return Column(
+                            children: [
+                              _buildSection(
+                                title: "Active Vacancies",
+                                trailing: GestureDetector(
+                                  onTap: () => context.push(RouteNames.myVacancies),
+                                  child: const CustomText(text: "View all", fontSize: 13, color: AppColors.cF9A405, fontWeight: FontWeight.bold),
+                                ),
+                                child: Column(
+                                  children: activeVacancies
+                                      .map(
+                                        (v) => Padding(
+                                          padding: const EdgeInsets.only(bottom: 12),
+                                          child: VacancyItemCard(vacancy: v),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              ),
+                              8.g,
+                            ],
+                          );
+                        },
                       ),
-                    ),
-                    24.g,
-                  ],
+                      // 16.g,
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      //   child: SizedBox(
+                      //     width: double.infinity,
+                      //     child: ElevatedButton.icon(
+                      //       onPressed: () {},
+                      //       style: ElevatedButton.styleFrom(
+                      //         backgroundColor: AppColors.c1F3C88,
+                      //         elevation: 0,
+                      //         padding: const EdgeInsets.symmetric(vertical: 14),
+                      //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      //       ),
+                      //       icon: const Icon(Icons.campaign_outlined, color: Colors.white),
+                      //       label: const CustomText(text: "Announcement", color: Colors.white, fontWeight: FontWeight.bold),
+                      //     ),
+                      //   ),
+                      // ),
+                      24.g,
+                    ],
+                  ),
                 ),
               );
-            case EmployerProfileError(message: final msg):
-              return Center(child: CustomText(text: "Error: $msg", color: Colors.red));
+            case ProfileStatus.failure:
+              return Center(
+                child: CustomText(text: "Error: ${state.errorMessage}", color: Colors.red),
+              );
             default:
               return const Center(child: CustomText(text: "Loading profile..."));
           }
@@ -162,46 +194,13 @@ class EmployerProfileScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               CustomText(text: title, fontSize: 16, fontWeight: FontWeight.bold),
-              if (trailing != null) trailing,
+              ?trailing,
             ],
           ),
           16.g,
           child,
         ],
       ),
-    );
-  }
-
-  Widget _buildReview(String name, String text, int stars) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: AppColors.c1F3C88.withValues(alpha: 0.1),
-                  child: CustomText(text: name[0], fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.c1F3C88),
-                ),
-                8.g,
-                CustomText(text: name, fontSize: 14, fontWeight: FontWeight.w600),
-              ],
-            ),
-            Row(
-              children: List.generate(5, (i) => Icon(
-                i < stars ? Icons.star : Icons.star_border,
-                color: AppColors.cF9A405,
-                size: 14,
-              )),
-            ),
-          ],
-        ),
-        8.g,
-        CustomText(text: text, fontSize: 13, color: Colors.grey.shade600),
-      ],
     );
   }
 }

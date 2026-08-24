@@ -26,6 +26,20 @@ class RouteNames {
   static const String employerDashboard = "/employer_dashboard";
   static const String myVacancies = '/my_vacancies';
   static const String applications = '/applications';
+  static const String applicationDetail = '/application_detail';
   static const String restaurantProfile = '/restaurant_profile';
   static const String editRestaurantProfile = '/edit_restaurant_profile';
+
+  // Seeker routes
+  static const String vacancyDetail = '/vacancy_detail';
+  static const String applyVacancy = '/apply_vacancy';
+  static const String seekerSearch = '/seeker_search';
+  static const String savedVacancies = '/saved_vacancies';
+  static const String myApplications = '/my_applications';
+  static const String seekerProfile = '/seeker_profile';
+  static const String editSeekerProfile = '/edit_seeker_profile';
+  static const String seekerDocuments = '/seeker_documents';
+  static const String editSeekerExperience = '/edit_seeker_experience';
+  static const String addExperience = '/add_experience';
+  static const String seekerSkills = '/seeker_skills';
 }

@@ -18,12 +18,13 @@ class MyVacanciesScreen extends StatelessWidget {
         appBar: const MyVacanciesAppBar(),
         body: BlocBuilder<VacanciesBloc, VacanciesState>(
           builder: (context, state) {
-            switch (state) {
-              case VacanciesLoading():
+            switch (state.status) {
+              case VacanciesStatus.loading:
                 return const Center(
                   child: CircularProgressIndicator(color: AppColors.c1F3C88),
                 );
-              case VacanciesLoaded(vacancies: final vacancies):
+              case VacanciesStatus.success:
+                final vacancies = state.vacancies;
                 return TabBarView(
                   children: [
                     VacanciesListView(vacancies: vacancies),
@@ -35,10 +36,10 @@ class MyVacanciesScreen extends StatelessWidget {
                     ),
                   ],
                 );
-              case VacanciesError(message: final msg):
+              case VacanciesStatus.failure:
                 return Center(
                   child: CustomText(
-                    text: "Error: $msg",
+                    text: "Error: ${state.errorMessage}",
                     color: AppColors.cFF0000,
                   ),
                 );

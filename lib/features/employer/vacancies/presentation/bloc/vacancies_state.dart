@@ -1,28 +1,36 @@
 import 'package:speed_staff_mobile/features/employer/vacancies/domain/entities/vacancy_entity.dart';
-import 'package:equatable/equatable.dart';
 
-abstract class VacanciesState extends Equatable {
-  const VacanciesState();
-  @override
-  List<Object?> get props => [];
-}
+enum VacanciesStatus { initial, loading, success, failure }
 
-class VacanciesInitial extends VacanciesState {}
+class VacanciesState {
+  final VacanciesStatus status;
+  final List<Vacancy> vacancies;
+  final String? errorMessage;
+  // Use a separate flag/message for form submissions like Create/Update to avoid full list reload flashing
+  final VacanciesStatus actionStatus;
+  final String? actionErrorMessage;
 
-class VacanciesLoading extends VacanciesState {}
+  const VacanciesState({
+    this.status = VacanciesStatus.initial,
+    this.vacancies = const [],
+    this.errorMessage,
+    this.actionStatus = VacanciesStatus.initial,
+    this.actionErrorMessage,
+  });
 
-class VacanciesLoaded extends VacanciesState {
-  final List<VacancyEntity> vacancies;
-  const VacanciesLoaded(this.vacancies);
-  @override
-  List<Object?> get props => [vacancies];
-}
-
-class VacancyCreated extends VacanciesState {}
-
-class VacanciesError extends VacanciesState {
-  final String message;
-  const VacanciesError(this.message);
-  @override
-  List<Object?> get props => [message];
+  VacanciesState copyWith({
+    VacanciesStatus? status,
+    List<Vacancy>? vacancies,
+    String? errorMessage,
+    VacanciesStatus? actionStatus,
+    String? actionErrorMessage,
+  }) {
+    return VacanciesState(
+      status: status ?? this.status,
+      vacancies: vacancies ?? this.vacancies,
+      errorMessage: errorMessage ?? this.errorMessage,
+      actionStatus: actionStatus ?? this.actionStatus,
+      actionErrorMessage: actionErrorMessage ?? this.actionErrorMessage,
+    );
+  }
 }

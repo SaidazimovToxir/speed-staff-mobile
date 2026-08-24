@@ -1,47 +1,96 @@
-import 'package:speed_staff_mobile/features/employer/vacancies/domain/entities/vacancy_entity.dart';
+import 'package:dio/dio.dart';
+import 'package:speed_staff_mobile/config/core/constants/api_constants.dart';
+import 'package:speed_staff_mobile/config/core/error/exceptions.dart';
+import 'package:speed_staff_mobile/config/network/dio_client.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/data/models/vacancy_model.dart';
 
 abstract class VacanciesRemoteDataSource {
-  Future<List<VacancyEntity>> getMyVacancies();
-  Future<void> createVacancy(Map<String, dynamic> vacancyData);
+  Future<List<VacancyModel>> getMyVacancies({int page = 1, int limit = 50});
+  Future<VacancyModel> createVacancy(Map<String, dynamic> data);
+  Future<VacancyModel> updateVacancy(String id, Map<String, dynamic> data);
+  Future<void> changeVacancyStatus(String id, String status);
+  Future<void> deleteVacancy(String id);
+  // Future<PaginatedResponse<ApplicationShortResponse>> getVacancyApplications(String id);
 }
 
-class VacanciesMockDataSourceImpl implements VacanciesRemoteDataSource {
-  @override
-  Future<List<VacancyEntity>> getMyVacancies() async {
-    await Future.delayed(const Duration(seconds: 1));
-    return [
-      VacancyEntity(
-        id: "1",
-        role: "Senior Barista",
-        company: "Gourmet Coffee Lab",
-        location: "Tashkent, Uzbekistan",
-        appliedCount: "24",
-        newCount: "3",
-        status: "Active",
-      ),
-      VacancyEntity(
-        id: "2",
-        role: "Floor Manager",
-        company: "The Golden Grill",
-        location: "Tashkent, Uzbekistan",
-        appliedCount: "12",
-        newCount: "1",
-        status: "Active",
-      ),
-      VacancyEntity(
-        id: "3",
-        role: "Kitchen Assistant",
-        company: "Global Cuisine",
-        location: "Tashkent, Uzbekistan",
-        appliedCount: "45",
-        newCount: "10",
-        status: "Active",
-      ),
-    ];
+class VacanciesRemoteDataSourceImpl implements VacanciesRemoteDataSource {
+  final DioClient _dioClient;
+
+  VacanciesRemoteDataSourceImpl(this._dioClient);
+
+  String _extractErrorMessage(DioException e) {
+    if (e.response?.data is Map<String, dynamic>) {
+      final data = e.response!.data as Map<String, dynamic>;
+      if (data['message'] != null) {
+        return data['message'].toString();
+      }
+      if (data['error_code'] != null) {
+        return data['error_code'].toString();
+      }
+    }
+    return e.message ?? e.toString();
   }
 
   @override
-  Future<void> createVacancy(Map<String, dynamic> vacancyData) async {
-    await Future.delayed(const Duration(seconds: 1));
+  Future<List<VacancyModel>> getMyVacancies({int page = 1, int limit = 50}) async {
+    try {
+      final response = await _dioClient.get(ApiConstants.vacancies, queryParameters: {'page': page, 'limit': limit});
+      final List<dynamic> items = response.data['data']?['items'] ?? response.data['items'] ?? response.data;
+      return items.map((e) => VacancyModel.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw ServerException(_extractErrorMessage(e));
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<VacancyModel> createVacancy(Map<String, dynamic> data) async {
+    try {
+      final response = await _dioClient.post(ApiConstants.vacancies, data: data);
+      return VacancyModel.fromJson(response.data['data'] ?? response.data);
+    } on DioException catch (e) {
+      // Handle VACANCY_LIMIT_REACHED specifically
+      if (e.response?.statusCode == 400 && e.response?.data?['error_code'] == 'VACANCY_LIMIT_REACHED') {
+        throw ServerException('VACANCY_LIMIT_REACHED');
+      }
+      throw ServerException(_extractErrorMessage(e));
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<VacancyModel> updateVacancy(String id, Map<String, dynamic> data) async {
+    try {
+      final response = await _dioClient.put('${ApiConstants.vacancies}/$id', data: data);
+      return VacancyModel.fromJson(response.data['data'] ?? response.data);
+    } on DioException catch (e) {
+      throw ServerException(_extractErrorMessage(e));
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> changeVacancyStatus(String id, String status) async {
+    try {
+      await _dioClient.patch('${ApiConstants.vacancies}/$id/status', data: {'status': status});
+    } on DioException catch (e) {
+      throw ServerException(_extractErrorMessage(e));
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> deleteVacancy(String id) async {
+    try {
+      await _dioClient.delete('${ApiConstants.vacancies}/$id');
+    } on DioException catch (e) {
+      throw ServerException(_extractErrorMessage(e));
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 }

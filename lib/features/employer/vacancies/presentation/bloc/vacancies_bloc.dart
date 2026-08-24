@@ -1,51 +1,108 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/domain/entities/vacancy_entity.dart';
+import 'package:speed_staff_mobile/features/employer/vacancies/domain/repositories/vacancy_repository.dart';
 import 'package:speed_staff_mobile/features/employer/vacancies/presentation/bloc/vacancies_event.dart';
 import 'package:speed_staff_mobile/features/employer/vacancies/presentation/bloc/vacancies_state.dart';
-import 'package:speed_staff_mobile/features/employer/vacancies/domain/usecases/get_my_vacancies.dart';
-import 'package:speed_staff_mobile/features/employer/vacancies/domain/usecases/create_vacancy.dart';
 
 class VacanciesBloc extends Bloc<VacanciesEvent, VacanciesState> {
-  final GetMyVacancies getMyVacancies;
-  final CreateVacancy createVacancy;
+  final VacanciesRepository repository;
 
-  VacanciesBloc({
-    required this.getMyVacancies,
-    required this.createVacancy,
-  }) : super(VacanciesInitial()) {
+  VacanciesBloc(this.repository) : super(const VacanciesState()) {
     on<LoadMyVacancies>(_onLoadMyVacancies);
-    on<CreateVacancyEvent>(_onCreateVacancy);
+    on<CreateVacancy>(_onCreateVacancy);
+    on<UpdateVacancy>(_onUpdateVacancy);
+    on<ChangeVacancyStatus>(_onChangeVacancyStatus);
+    on<DeleteVacancy>(_onDeleteVacancy);
   }
 
-  Future<void> _onLoadMyVacancies(
-    LoadMyVacancies event,
-    Emitter<VacanciesState> emit,
-  ) async {
-    emit(VacanciesLoading());
-    try {
-      final result = await getMyVacancies();
-      result.fold(
-        (failure) => emit(VacanciesError(failure.message)),
-        (vacancies) => emit(VacanciesLoaded(vacancies)),
-      );
-    } catch (e) {
-      emit(VacanciesError(e.toString()));
-    }
+  Future<void> _onLoadMyVacancies(LoadMyVacancies event, Emitter<VacanciesState> emit) async {
+    emit(state.copyWith(status: VacanciesStatus.loading));
+    final result = await repository.getMyVacancies(page: event.page, limit: event.limit);
+    result.fold(
+      (failure) {
+        emit(state.copyWith(status: VacanciesStatus.failure, errorMessage: failure.message));
+      },
+      (vacancies) {
+        emit(state.copyWith(status: VacanciesStatus.success, vacancies: vacancies));
+      },
+    );
   }
 
-  Future<void> _onCreateVacancy(
-    CreateVacancyEvent event,
-    Emitter<VacanciesState> emit,
-  ) async {
-    emit(VacanciesLoading());
-    try {
-      // Create empty map or fetch from event if it had fields. Currently it doesn't, so use empty.
-      final result = await createVacancy({});
-      result.fold(
-        (failure) => emit(VacanciesError(failure.message)),
-        (_) => emit(VacancyCreated()),
-      );
-    } catch (e) {
-      emit(VacanciesError(e.toString()));
-    }
+  Future<void> _onCreateVacancy(CreateVacancy event, Emitter<VacanciesState> emit) async {
+    emit(state.copyWith(actionStatus: VacanciesStatus.loading));
+    final result = await repository.createVacancy(event.data);
+    result.fold(
+      (failure) {
+        emit(state.copyWith(actionStatus: VacanciesStatus.failure, actionErrorMessage: failure.message));
+      },
+      (vacancy) {
+        final updatedVacancies = List.of(state.vacancies)..insert(0, vacancy);
+        emit(state.copyWith(actionStatus: VacanciesStatus.success, vacancies: updatedVacancies));
+      },
+    );
+  }
+
+  Future<void> _onUpdateVacancy(UpdateVacancy event, Emitter<VacanciesState> emit) async {
+    emit(state.copyWith(actionStatus: VacanciesStatus.loading));
+    final result = await repository.updateVacancy(event.id, event.data);
+    result.fold(
+      (failure) {
+        emit(state.copyWith(actionStatus: VacanciesStatus.failure, actionErrorMessage: failure.message));
+      },
+      (vacancy) {
+        final updatedVacancies = state.vacancies.map((v) => v.id == vacancy.id ? vacancy : v).toList();
+        emit(state.copyWith(actionStatus: VacanciesStatus.success, vacancies: updatedVacancies));
+      },
+    );
+  }
+
+  Future<void> _onChangeVacancyStatus(ChangeVacancyStatus event, Emitter<VacanciesState> emit) async {
+    emit(state.copyWith(actionStatus: VacanciesStatus.loading));
+    final result = await repository.changeVacancyStatus(event.id, event.status);
+    result.fold(
+      (failure) {
+        emit(state.copyWith(actionStatus: VacanciesStatus.failure, actionErrorMessage: failure.message));
+      },
+      (_) {
+        final updatedVacancies = state.vacancies.map((v) {
+          if (v.id == event.id) {
+            return Vacancy(
+              id: v.id,
+              title: v.title,
+              position: v.position,
+              description: v.description,
+              workType: v.workType,
+              salaryType: v.salaryType,
+              salaryMin: v.salaryMin,
+              salaryMax: v.salaryMax,
+              experienceMin: v.experienceMin,
+              experienceMax: v.experienceMax,
+              requirements: v.requirements,
+              schedule: v.schedule,
+              status: event.status,
+              viewsCount: v.viewsCount,
+              applicationsCount: v.applicationsCount,
+              employer: v.employer,
+            );
+          }
+          return v;
+        }).toList();
+        emit(state.copyWith(actionStatus: VacanciesStatus.success, vacancies: updatedVacancies));
+      },
+    );
+  }
+
+  Future<void> _onDeleteVacancy(DeleteVacancy event, Emitter<VacanciesState> emit) async {
+    emit(state.copyWith(actionStatus: VacanciesStatus.loading));
+    final result = await repository.deleteVacancy(event.id);
+    result.fold(
+      (failure) {
+        emit(state.copyWith(actionStatus: VacanciesStatus.failure, actionErrorMessage: failure.message));
+      },
+      (_) {
+        final updatedVacancies = state.vacancies.where((v) => v.id != event.id).toList();
+        emit(state.copyWith(actionStatus: VacanciesStatus.success, vacancies: updatedVacancies));
+      },
+    );
   }
 }

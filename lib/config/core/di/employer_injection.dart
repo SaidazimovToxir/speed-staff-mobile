@@ -1,23 +1,40 @@
 part of 'injection_container.dart';
 
 Future<void> _registerEmployerDependencies() async {
+  // --- EMPLOYER & DASHBOARD ---
+
   // Data Sources
   sl.registerLazySingleton<EmployerHomeRemoteDataSource>(
-    () => EmployerHomeMockDataSourceImpl(),
+    () => EmployerHomeRemoteDataSourceImpl(sl()),
   );
 
-  // Repositories
+  sl.registerLazySingleton<EmployerRemoteDataSource>(
+    () => EmployerRemoteDataSourceImpl(sl()),
+  );
+
   sl.registerLazySingleton<EmployerHomeRepository>(
     () => EmployerHomeRepositoryImpl(sl()),
   );
 
-  // UseCases
-  sl.registerLazySingleton(() => GetDashboardStats(sl()));
-  sl.registerLazySingleton(() => GetRecentApplications(sl()));
+  sl.registerLazySingleton<EmployerRepository>(
+    () => EmployerRepositoryImpl(sl()),
+  );
 
-  // Applications dependencies
+  // --- VACANCIES ---
+
+  // Data Sources
+  sl.registerLazySingleton<VacanciesRemoteDataSource>(
+    () => VacanciesRemoteDataSourceImpl(sl()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<VacanciesRepository>(
+    () => VacanciesRepositoryImpl(sl()),
+  );
+
+  // --- APPLICATIONS (Real API implementation) ---
   sl.registerLazySingleton<ApplicationsRemoteDataSource>(
-    () => ApplicationsMockDataSourceImpl(),
+    () => ApplicationsRemoteDataSourceImpl(sl()),
   );
 
   sl.registerLazySingleton<ApplicationsRepository>(
@@ -25,49 +42,20 @@ Future<void> _registerEmployerDependencies() async {
   );
 
   sl.registerLazySingleton(() => GetVacancyApplications(sl()));
-  sl.registerLazySingleton(() => GetCandidateDetails(sl()));
+  sl.registerLazySingleton(() => GetApplicationDetail(sl()));
   sl.registerLazySingleton(() => UpdateApplicationStatus(sl()));
 
-  // Vacancies dependencies
-  sl.registerLazySingleton<VacanciesRemoteDataSource>(
-    () => VacanciesMockDataSourceImpl(),
-  );
-
-  sl.registerLazySingleton<VacanciesRepository>(
-    () => VacanciesRepositoryImpl(sl()),
-  );
-
-  sl.registerLazySingleton(() => GetMyVacancies(sl()));
-  sl.registerLazySingleton(() => CreateVacancy(sl()));
-
-  // Profile dependencies
-  sl.registerLazySingleton<EmployerProfileRemoteDataSource>(
-    () => EmployerProfileMockDataSourceImpl(),
-  );
-
-  sl.registerLazySingleton<EmployerProfileRepository>(
-    () => EmployerProfileRepositoryImpl(sl()),
-  );
-
-  sl.registerLazySingleton(() => GetEmployerProfile(sl()));
-  sl.registerLazySingleton(() => UpdateEmployerProfileUseCase(sl()));
-
-  // Blocs
-  sl.registerFactory(() => EmployerHomeBloc(
-        getDashboardStats: sl(),
-        getRecentApplications: sl(),
-      ));
-  sl.registerFactory(() => VacanciesBloc(
-        getMyVacancies: sl(),
-        createVacancy: sl(),
-      ));
-  sl.registerFactory(() => ApplicationsBloc(
-        getVacancyApplications: sl(),
-        getCandidateDetails: sl(),
-        updateApplicationStatus: sl(),
-      ));
+  // --- BLOCS ---
+  sl.registerFactory(() => EmployerHomeBloc(sl()));
+  sl.registerFactory(() => VacanciesBloc(sl()));
   sl.registerFactory(() => EmployerProfileBloc(
-        getEmployerProfile: sl(),
-        updateEmployerProfile: sl(),
-      ));
+    repository: sl(),
+    uploadLogoUseCase: sl(),
+  ));
+
+  sl.registerFactory(() => ApplicationsBloc(
+    getVacancyApplications: sl(),
+    getApplicationDetail: sl(),
+    updateApplicationStatus: sl(),
+  ));
 }

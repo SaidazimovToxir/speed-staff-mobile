@@ -9,10 +9,22 @@ abstract class EmployerProfileEvent extends Equatable {
 
 class LoadEmployerProfile extends EmployerProfileEvent {}
 
-class UpdateEmployerProfile extends EmployerProfileEvent {
+class CreateEmployerProfile extends EmployerProfileEvent {
   final Map<String, dynamic> data;
-  const UpdateEmployerProfile(this.data);
+  final String? logoPath;
+
+  const CreateEmployerProfile(this.data, {this.logoPath});
 
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, logoPath];
+}
+
+class UpdateEmployerProfile extends EmployerProfileEvent {
+  final Map<String, dynamic> data;
+  final String? logoPath;
+
+  const UpdateEmployerProfile(this.data, {this.logoPath});
+
+  @override
+  List<Object?> get props => [data, logoPath];
 }

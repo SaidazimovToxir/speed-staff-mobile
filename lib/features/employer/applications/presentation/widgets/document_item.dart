@@ -1,10 +1,18 @@
-﻿import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
 
+/// Seeker document ma'lumotlari (local struktura)
+class DocumentData {
+  final String name;
+  final String info;
+
+  const DocumentData({required this.name, required this.info});
+}
+
 class DocumentItem extends StatelessWidget {
-  final DocumentEntity document;
+  final DocumentData document;
   const DocumentItem({super.key, required this.document});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,6 +34,7 @@ class DocumentItem extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
+                3.g,
                 CustomText(
                   text: document.info,
                   fontSize: 12,

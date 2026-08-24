@@ -1,46 +1,39 @@
-﻿import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
+import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
+import 'package:intl/intl.dart';
 
 class RecentApplicationItem extends StatelessWidget {
-  final ApplicationEntity application;
+  final ApplicationShortEntity application;
   const RecentApplicationItem({super.key, required this.application});
+
   @override
   Widget build(BuildContext context) {
     final statusConfig = _getStatusConfig(application.status);
+    final seeker = application.seeker;
+    final timeAgo = _formatTime(application.appliedAt);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 20,
             backgroundColor: AppColors.c1F3C88.withValues(alpha: 0.1),
-            backgroundImage: NetworkImage(
-               'https://ui-avatars.com/api/?name=${application.candidateName}&background=random',
-            ),
-            onBackgroundImageError: (_, __) {},
-            child: Text(
-              application.candidateName.isNotEmpty ? application.candidateName[0].toUpperCase() : '?',
-              style: const TextStyle(color: AppColors.c1F3C88, fontWeight: FontWeight.bold),
-            ),
+            backgroundImage: seeker.avatarUrl != null
+                ? NetworkImage(seeker.avatarUrl!)
+                : NetworkImage('https://ui-avatars.com/api/?name=${seeker.fullName}&background=1F3C88&color=fff'),
+            onBackgroundImageError: (_, _) {},
           ),
           12.g,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomText(
-                  text: application.candidateName,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                2.g,
-                CustomText(
-                  text: application.role,
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                CustomText(text: seeker.fullName, fontSize: 14, fontWeight: FontWeight.bold),
+                3.g,
+                CustomText(text: seeker.position ?? seeker.city ?? '', fontSize: 12, color: Colors.grey.shade600),
               ],
             ),
           ),
@@ -49,23 +42,11 @@ class RecentApplicationItem extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusConfig.backgroundColor,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: CustomText(
-                  text: application.status.toUpperCase(),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: statusConfig.textColor,
-                ),
+                decoration: BoxDecoration(color: statusConfig.backgroundColor, borderRadius: BorderRadius.circular(100)),
+                child: CustomText(text: application.status.toUpperCase(), fontSize: 10, fontWeight: FontWeight.w700, color: statusConfig.textColor),
               ),
-              8.g,
-              CustomText(
-                text: application.time,
-                fontSize: 10,
-                color: Colors.grey.shade500,
-              ),
+              6.g,
+              CustomText(text: timeAgo, fontSize: 10, color: Colors.grey.shade500),
             ],
           ),
         ],
@@ -73,21 +54,27 @@ class RecentApplicationItem extends StatelessWidget {
     );
   }
 
+  String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return DateFormat('dd MMM').format(dt);
+  }
+
   ({Color textColor, Color backgroundColor}) _getStatusConfig(String status) {
-    final lower = status.toLowerCase();
-    if (lower.contains('review')) {
-      return (textColor: AppColors.cF9A405, backgroundColor: AppColors.cF9A405.withValues(alpha: 0.1));
-    } else if (lower.contains('interview')) {
-      return (textColor: Colors.indigo, backgroundColor: Colors.indigo.withValues(alpha: 0.1));
-    } else if (lower.contains('applied') || lower.contains('new')) {
-      return (textColor: Colors.blue, backgroundColor: Colors.blue.withValues(alpha: 0.1));
-    } else if (lower.contains('hired') || lower.contains('recruited')) {
-      return (textColor: Colors.green.shade700, backgroundColor: Colors.green.withValues(alpha: 0.1));
-    } else if (lower.contains('rejected')) {
-      return (textColor: Colors.red.shade700, backgroundColor: Colors.red.withValues(alpha: 0.1));
-    } else if (lower.contains('shortlisted')) {
-      return (textColor: Colors.teal, backgroundColor: Colors.teal.withValues(alpha: 0.1));
+    switch (status.toLowerCase()) {
+      case 'sent':
+        return (textColor: Colors.blue, backgroundColor: Colors.blue.withValues(alpha: 0.1));
+      case 'viewed':
+        return (textColor: AppColors.cF9A405, backgroundColor: AppColors.cF9A405.withValues(alpha: 0.1));
+      case 'shortlisted':
+        return (textColor: Colors.teal, backgroundColor: Colors.teal.withValues(alpha: 0.1));
+      case 'hired':
+        return (textColor: Colors.green.shade700, backgroundColor: Colors.green.withValues(alpha: 0.1));
+      case 'rejected':
+        return (textColor: Colors.red.shade700, backgroundColor: Colors.red.withValues(alpha: 0.1));
+      default:
+        return (textColor: Colors.grey.shade700, backgroundColor: Colors.grey.shade200);
     }
-    return (textColor: Colors.grey.shade700, backgroundColor: Colors.grey.shade200);
   }
 }

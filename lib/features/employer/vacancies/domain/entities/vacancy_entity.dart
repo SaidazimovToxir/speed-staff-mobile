@@ -1,30 +1,39 @@
-import 'package:equatable/equatable.dart';
+import 'package:speed_staff_mobile/features/employer/profile/domain/entities/employer_profile.dart';
 
-class VacancyEntity extends Equatable {
-  final String id;
-  final String role;
-  final String company;
-  final String location;
-  final String appliedCount;
-  final String newCount;
-  final String status;
-  const VacancyEntity({
-    required this.id,
-    required this.role,
-    required this.company,
-    required this.location,
-    required this.appliedCount,
-    required this.newCount,
-    required this.status,
+class Vacancy {
+  final String? id;
+  final String title;
+  final String position;
+  final String description;
+  final String workType;
+  final String salaryType;
+  final int? salaryMin;
+  final int? salaryMax;
+  final int experienceMin;
+  final int? experienceMax;
+  final String? requirements;
+  final String? schedule;
+  final String? status;
+  final int? viewsCount;
+  final int? applicationsCount;
+  final EmployerProfile? employer;
+
+  const Vacancy({
+    this.id,
+    required this.title,
+    required this.position,
+    required this.description,
+    required this.workType,
+    this.salaryType = 'negotiable',
+    this.salaryMin,
+    this.salaryMax,
+    this.experienceMin = 0,
+    this.experienceMax,
+    this.requirements,
+    this.schedule,
+    this.status,
+    this.viewsCount,
+    this.applicationsCount,
+    this.employer,
   });
-  @override
-  List<Object?> get props => [
-    id,
-    role,
-    company,
-    location,
-    appliedCount,
-    newCount,
-    status,
-  ];
 }

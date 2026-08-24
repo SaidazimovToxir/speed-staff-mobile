@@ -18,6 +18,13 @@ import 'package:speed_staff_mobile/features/employer/applications/presentation/b
 import 'package:speed_staff_mobile/features/employer/profile/presentation/bloc/employer_profile_bloc.dart';
 import 'package:speed_staff_mobile/features/employer/profile/presentation/bloc/employer_profile_event.dart';
 
+import 'package:speed_staff_mobile/features/shared/locations/presentation/bloc/location_bloc.dart';
+import 'package:speed_staff_mobile/features/shared/locations/presentation/bloc/location_event.dart';
+import 'package:speed_staff_mobile/features/shared/skills/presentation/bloc/skills_bloc.dart';
+import 'package:speed_staff_mobile/features/shared/skills/presentation/bloc/skills_event.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/bloc/seeker_profile_bloc.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/bloc/seeker_profile_event.dart';
+
 class MyBlocProviders {
   static final MockHomeRepository _homeRepo = MockHomeRepository();
   static final MockNotificationRepository _notifRepo = MockNotificationRepository();
@@ -29,10 +36,13 @@ class MyBlocProviders {
       BlocProvider<HomeBloc>(create: (context) => HomeBloc(repository: _homeRepo)..add(LoadHomeData())),
       BlocProvider<RestaurantDetailBloc>(create: (context) => RestaurantDetailBloc(repository: _homeRepo)),
       BlocProvider<NotificationBloc>(create: (context) => NotificationBloc(repository: _notifRepo)..add(LoadNotifications())),
-      BlocProvider<EmployerHomeBloc>(create: (context) => sl<EmployerHomeBloc>()..add(LoadEmployerDashboard())),
-      BlocProvider<VacanciesBloc>(create: (context) => sl<VacanciesBloc>()..add(LoadMyVacancies())),
+      BlocProvider<EmployerHomeBloc>(create: (context) => sl<EmployerHomeBloc>()..add(LoadDashboardStats())),
+      BlocProvider<VacanciesBloc>(create: (context) => sl<VacanciesBloc>()..add(const LoadMyVacancies())),
       BlocProvider<ApplicationsBloc>(create: (context) => sl<ApplicationsBloc>()..add(const LoadVacancyApplications('1'))),
       BlocProvider<EmployerProfileBloc>(create: (context) => sl<EmployerProfileBloc>()..add(LoadEmployerProfile())),
+      BlocProvider<LocationBloc>(create: (context) => sl<LocationBloc>()..add(const FetchRegions())),
+      BlocProvider<SkillsBloc>(create: (context) => sl<SkillsBloc>()..add(const FetchSkills())),
+      BlocProvider<SeekerProfileBloc>(create: (context) => sl<SeekerProfileBloc>()..add(const LoadSeekerProfile())),
     ];
   }
 }

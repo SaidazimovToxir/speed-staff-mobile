@@ -1,7 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/core/extensions/size_extension.dart';
 import 'package:speed_staff_mobile/config/widgets/custom_text.dart';
-import 'package:speed_staff_mobile/features/employer/profile/presentation/widgets/stat_item.dart';
 
 class ProfileStatsSection extends StatelessWidget {
   final Map<String, dynamic> data;

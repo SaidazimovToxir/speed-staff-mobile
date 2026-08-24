@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +15,11 @@ import 'bloc/tab_box/tab_box_bloc.dart';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_bloc.dart';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_event.dart';
 import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_state.dart';
+import 'package:speed_staff_mobile/features/seeker/applications/presentation/pages/my_applications_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/profile/presentation/pages/seeker_profile_screen.dart';
 import 'package:speed_staff_mobile/features/seeker/seeker_home/presentation/pages/seeker_home_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/vacancies/presentation/pages/seeker_search_screen.dart';
+import 'package:speed_staff_mobile/features/seeker/vacancies/presentation/pages/saved_vacancies_screen.dart';
 import 'package:speed_staff_mobile/features/employer/employer_home/presentation/pages/employer_home_screen.dart';
 
 class PageConfig {
@@ -41,9 +44,7 @@ class CustomNavigationBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, -4))
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, -4))],
       ),
       child: SafeArea(
         child: Padding(
@@ -57,10 +58,7 @@ class CustomNavigationBar extends StatelessWidget {
                 isSelected: selectedIndex == entry.key,
                 isDownloadPage: entry.key == 2,
                 onTap: () {
-                  if (Platform.isAndroid) {
-                  } else {
-                    HapticFeedback.lightImpact();
-                  }
+                  if (!Platform.isAndroid) HapticFeedback.lightImpact();
                   onItemSelected(entry.key);
                 },
               );
@@ -138,11 +136,19 @@ class _IOSStyleNavItemState extends State<_IOSStyleNavItem> with SingleTickerPro
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (widget.config.icon != null)
-                        CustomImageView(imagePath: widget.config.icon!, width: 24, height: 24, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400),
+                        CustomImageView(
+                          imagePath: widget.config.icon!,
+                          width: 24,
+                          height: 24,
+                          color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400,
+                        ),
                       if (widget.config.iconData != null)
                         Icon(widget.config.iconData, size: 24, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400),
                       const SizedBox(height: 4),
-                      Text(widget.config.label, style: TextStyle(fontSize: 10, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400, fontWeight: FontWeight.bold)),
+                      Text(
+                        widget.config.label,
+                        style: TextStyle(fontSize: 10, color: widget.isSelected ? AppColors.cF9A405 : Colors.grey.shade400, fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                 ),
@@ -163,20 +169,21 @@ class TabBox extends StatefulWidget {
 }
 
 class _TabBoxState extends State<TabBox> {
-  final List<GlobalKey> _navKeys = List.generate(4, (index) => GlobalKey());
+  final List<GlobalKey> _navKeys = List.generate(5, (index) => GlobalKey());
   List<PageConfig> _getPagesForRole(String role) {
     if (role == 'employer') {
       return [
         PageConfig(index: 0, iconData: Icons.grid_view, label: 'Dashboard'),
         PageConfig(index: 1, iconData: Icons.list_alt, label: 'Vacancies'),
-        PageConfig(index: 2, iconData: Icons.description_outlined, label: 'Applications'),
         PageConfig(index: 3, iconData: Icons.person_outline, label: 'Profile'),
       ];
     } else if (role == 'seeker') {
       return [
-        PageConfig(index: 0, icon: AppIcons.homePassiveIcn, label: 'Asosiy'),
-        PageConfig(index: 1, icon: AppIcons.searchPassiveIcn, label: 'Vakansiyalar'),
-        PageConfig(index: 2, icon: AppIcons.profilePassiveIcn, label: 'Profil'),
+        PageConfig(index: 0, iconData: Icons.home_outlined, label: 'Home'),
+        PageConfig(index: 1, iconData: Icons.search_rounded, label: 'Search'),
+        PageConfig(index: 2, iconData: Icons.favorite_outline_rounded, label: 'Saved'),
+        PageConfig(index: 3, iconData: Icons.work_outline_rounded, label: 'Applied'),
+        PageConfig(index: 4, iconData: Icons.person_outline, label: 'Profile'),
       ];
     } else {
       return [
@@ -225,9 +232,13 @@ class _TabBoxState extends State<TabBox> {
         case 0:
           return const SeekerHomeScreen();
         case 1:
-          return const Center(child: Text("Seeker Vacancies coming soon"));
+          return const SeekerSearchScreen();
         case 2:
-          return _buildProfilePlaceholder();
+          return const SavedVacanciesScreen();
+        case 3:
+          return const MyApplicationsScreen();
+        case 4:
+          return const SeekerProfileScreen();
         default:
           return const SeekerHomeScreen();
       }
@@ -256,15 +267,12 @@ class _TabBoxState extends State<TabBox> {
       child: Scaffold(
         body: BlocBuilder<TabBoxBloc, TabBoxState>(
           builder: (context, state) {
-            // TODO: remove this override when real auth is ready
-            // Currently forcing 'employer' for UI development
-            String role = 'employer';
+            String role = 'seeker'; // Default fallback
             final authState = context.read<AuthBloc>().state;
             if (authState is AuthSuccess) {
-              // Override: treat any logged-in user as employer for dev
-              role = 'employer'; // authState.user.role ?? 'employer';
+              role = authState.user.role ?? 'seeker';
             } else if (authState is AuthNeedsProfileUpdate) {
-              role = 'employer'; // authState.user.role ?? 'employer';
+              role = authState.user.role ?? 'seeker';
             }
             final activePages = _getPagesForRole(role);
             final safeIndex = state.selectedIndex.clamp(0, activePages.length - 1);
@@ -276,13 +284,12 @@ class _TabBoxState extends State<TabBox> {
           padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
           child: BlocBuilder<TabBoxBloc, TabBoxState>(
             builder: (context, state) {
-              // TODO: remove this override when real auth is ready
-              String role = 'employer';
+              String role = 'seeker'; // Default fallback
               final authState = context.read<AuthBloc>().state;
               if (authState is AuthSuccess) {
-                role = 'employer'; // authState.user.role ?? 'employer';
+                role = authState.user.role ?? 'seeker';
               } else if (authState is AuthNeedsProfileUpdate) {
-                role = 'employer'; // authState.user.role ?? 'employer';
+                role = authState.user.role ?? 'seeker';
               }
               final activePages = _getPagesForRole(role);
               final safeIndex = state.selectedIndex.clamp(0, activePages.length - 1);

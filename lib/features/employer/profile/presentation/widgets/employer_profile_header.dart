@@ -1,21 +1,24 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
-import 'package:go_router/go_router.dart';
+
+import 'package:speed_staff_mobile/features/employer/profile/domain/entities/employer_profile.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_bloc.dart';
+import 'package:speed_staff_mobile/features/shared/auth/presentation/bloc/auth_event.dart';
 
 class EmployerProfileHeader extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final EmployerProfile data;
 
   const EmployerProfileHeader({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final name = data['name'] ?? 'The Golden Grill';
-    final location = data['location'] ?? 'Tashkent, Uzbekistan';
+    final name = data.restaurantName;
+    final location = data.address ?? 'Tashkent, Uzbekistan';
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        // ── Cover image ──────────────────────────────────
         CustomImageView(
           imagePath: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
           height: 220,
@@ -23,7 +26,6 @@ class EmployerProfileHeader extends StatelessWidget {
           fit: BoxFit.cover,
         ),
 
-        // ── Dark gradient overlay (bottom half) ───────────
         Container(
           height: 220,
           width: double.infinity,
@@ -31,32 +33,36 @@ class EmployerProfileHeader extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.black.withValues(alpha: 0.7),
-              ],
+              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.7)],
               stops: const [0.4, 1.0],
             ),
           ),
         ),
 
-        // ── Top controls: back + share buttons ─────────────
         Positioned(
           top: MediaQuery.paddingOf(context).top + 12,
           left: 16,
           right: 16,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              _iconButton(
-                icon: Icons.arrow_back_rounded,
-                onTap: () {
-                  if (context.canPop()) context.pop();
-                },
-              ),
-              _iconButton(
-                icon: Icons.share_outlined,
-                onTap: () {},
+              // _iconButton(
+              //   icon: Icons.arrow_back_rounded,
+              //   onTap: () {
+              //     if (context.canPop()) context.pop();
+              //   },
+              // ),
+              Row(
+                children: [
+                  // _iconButton(icon: Icons.share_outlined, onTap: () {}),
+                  // 8.g,
+                  _iconButton(
+                    icon: Icons.logout_outlined,
+                    onTap: () {
+                      context.read<AuthBloc>().add(LogoutEvent());
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -77,16 +83,9 @@ class EmployerProfileHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 6,
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 6)],
                 ),
-                child: const Center(
-                  child: Icon(Icons.restaurant, color: AppColors.cF9A405, size: 26),
-                ),
+                child: const Center(child: Icon(Icons.restaurant, color: AppColors.cF9A405, size: 26)),
               ),
               12.g,
               // Name + address
@@ -95,18 +94,9 @@ class EmployerProfileHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CustomText(
-                      text: name,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    CustomText(text: name, fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                     2.g,
-                    CustomText(
-                      text: location,
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.85),
-                    ),
+                    CustomText(text: location, fontSize: 12, color: Colors.white.withValues(alpha: 0.85)),
                   ],
                 ),
               ),
@@ -122,10 +112,7 @@ class EmployerProfileHeader extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.35),
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.35), shape: BoxShape.circle),
         child: Icon(icon, color: Colors.white, size: 20),
       ),
     );

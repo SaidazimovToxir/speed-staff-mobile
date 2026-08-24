@@ -1,12 +1,13 @@
-﻿import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
+import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speed_staff_mobile/config/config.dart';
 import 'package:speed_staff_mobile/features/employer/employer_home/presentation/widgets/recent_application_item.dart';
 
 class RecentApplicationsList extends StatelessWidget {
-  final List<ApplicationEntity> applications;
+  final List<ApplicationShortEntity> applications;
   const RecentApplicationsList({super.key, required this.applications});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -37,8 +38,7 @@ class RecentApplicationsList extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   TextButton(
-                    onPressed: () =>
-                        context.push(RouteNames.applications, extra: '1'),
+                    onPressed: () => context.push(RouteNames.myVacancies),
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(50, 30),
@@ -47,7 +47,7 @@ class RecentApplicationsList extends StatelessWidget {
                     ),
                     child: const CustomText(
                       text: "View All",
-                      color: AppColors.cF9A405, // Orange link color from design
+                      color: AppColors.cF9A405,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
@@ -63,7 +63,10 @@ class RecentApplicationsList extends StatelessWidget {
               itemCount: applications.length,
               separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade200),
               itemBuilder: (context, index) => InkWell(
-                onTap: () => context.push(RouteNames.candidateProfile, extra: applications[index].id),
+                onTap: () => context.push(
+                  RouteNames.applicationDetail,
+                  extra: applications[index].id,
+                ),
                 child: RecentApplicationItem(application: applications[index]),
               ),
             ),

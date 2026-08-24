@@ -11,7 +11,7 @@ class EmployerHomeRepositoryImpl implements EmployerHomeRepository {
   EmployerHomeRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, EmployerStatsEntity>> getDashboardStats() async {
+  Future<Either<Failure, DashboardStats>> getDashboardStats() async {
     try {
       final stats = await remoteDataSource.getDashboardStats();
       return Right(stats);
@@ -21,7 +21,7 @@ class EmployerHomeRepositoryImpl implements EmployerHomeRepository {
   }
 
   @override
-  Future<Either<Failure, List<ApplicationEntity>>> getRecentApplications() async {
+  Future<Either<Failure, List<ApplicationShortEntity>>> getRecentApplications() async {
     try {
       final applications = await remoteDataSource.getRecentApplications();
       return Right(applications);

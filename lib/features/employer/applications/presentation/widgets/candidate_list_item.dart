@@ -1,79 +1,57 @@
-﻿import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:speed_staff_mobile/config/config.dart';
+import 'package:speed_staff_mobile/features/employer/applications/domain/entities/application_entity.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class CandidateListItem extends StatelessWidget {
-  final CandidateEntity candidate;
-  const CandidateListItem({super.key, required this.candidate});
+  final ApplicationShortEntity application;
+  const CandidateListItem({super.key, required this.application});
+
   @override
   Widget build(BuildContext context) {
-    final statusConfig = _getStatusConfig(candidate.role ?? "New");
+    final statusConfig = _getStatusConfig(application.status);
+    final seeker = application.seeker;
+
     return InkWell(
-      onTap: () =>
-          context.push("${RouteNames.candidateProfile}/${candidate.id}"),
+      borderRadius: BorderRadius.circular(20),
+      onTap: () => context.push(RouteNames.applicationDetail, extra: application.id),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            )
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
           border: Border.all(color: Colors.grey.shade100),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.c1F3C88.withValues(alpha: 0.05),
-                image: DecorationImage(
-                  image: NetworkImage(
-                    'https://ui-avatars.com/api/?name=${candidate.name}&background=random&size=128',
-                  ),
-                  fit: BoxFit.cover,
-                ),
+            // Avatar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(26),
+              child: SizedBox(
+                width: 52,
+                height: 52,
+                child: seeker.avatarUrl != null
+                    ? Image.network(seeker.avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => _buildAvatarFallback(seeker.fullName))
+                    : _buildAvatarFallback(seeker.fullName),
               ),
-              child: candidate.name.isEmpty 
-                ? const Icon(Icons.person, color: Colors.grey)
-                : null,
             ),
             14.g,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   CustomText(
-                    text: candidate.name,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
+                  CustomText(text: seeker.fullName, fontSize: 15, fontWeight: FontWeight.w800),
                   4.g,
                   Row(
                     children: [
-                      CustomText(
-                        text: candidate.role ?? "Candidate",
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      CustomText(text: seeker.position ?? seeker.city ?? 'Nomzod', fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
                       8.g,
                       const Icon(Icons.star, size: 14, color: AppColors.cF9A405),
-                      4.g,
-                      CustomText(
-                        text: candidate.rating,
-                        fontSize: 12,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      3.g,
+                      CustomText(text: seeker.rating.toStringAsFixed(1), fontSize: 12, color: Colors.black, fontWeight: FontWeight.w800),
                     ],
                   ),
                 ],
@@ -85,24 +63,11 @@ class CandidateListItem extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: statusConfig.backgroundColor,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: CustomText(
-                    text: (candidate.role ?? "NEW").toUpperCase(),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    color: statusConfig.textColor,
-                  ),
+                  decoration: BoxDecoration(color: statusConfig.backgroundColor, borderRadius: BorderRadius.circular(100)),
+                  child: CustomText(text: _statusLabel(application.status), fontSize: 9, fontWeight: FontWeight.w900, color: statusConfig.textColor),
                 ),
-                8.g,
-                CustomText(
-                  text: "2h ago",
-                  fontSize: 10,
-                  color: Colors.grey.shade400,
-                  fontWeight: FontWeight.w600,
-                ),
+                6.g,
+                CustomText(text: _formatTime(application.appliedAt), fontSize: 10, color: Colors.grey.shade400, fontWeight: FontWeight.w600),
               ],
             ),
           ],
@@ -111,18 +76,48 @@ class CandidateListItem extends StatelessWidget {
     );
   }
 
-  ({Color textColor, Color backgroundColor}) _getStatusConfig(String status) {
-    final lower = status.toLowerCase();
-    if (lower.contains('interviewing')) {
-      return (textColor: Colors.blue.shade700, backgroundColor: Colors.blue.shade50);
-    } else if (lower.contains('shortlisted')) {
-       return (textColor: Colors.green.shade700, backgroundColor: Colors.green.shade50);
-    } else if (lower.contains('recruited') || lower.contains('hired')) {
-       return (textColor: Colors.teal.shade700, backgroundColor: Colors.teal.shade50);
-    } else if (lower.contains('rejected')) {
-       return (textColor: Colors.red.shade700, backgroundColor: Colors.red.shade50);
+  Widget _buildAvatarFallback(String name) {
+    return Image.network('https://ui-avatars.com/api/?name=$name&background=1F3C88&color=fff&size=128', fit: BoxFit.cover);
+  }
+
+  String _formatTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m oldin';
+    if (diff.inHours < 24) return '${diff.inHours}h oldin';
+    return DateFormat('dd MMM').format(dt);
+  }
+
+  String _statusLabel(String status) {
+    switch (status) {
+      case 'sent':
+        return 'YANGI';
+      case 'viewed':
+        return "KO'RILDI";
+      case 'shortlisted':
+        return 'TANLANDI';
+      case 'hired':
+        return 'QABUL';
+      case 'rejected':
+        return 'RAD';
+      default:
+        return status.toUpperCase();
     }
-    // Default or "New"
-    return (textColor: AppColors.cF9A405, backgroundColor: AppColors.cF9A405.withValues(alpha: 0.1));
+  }
+
+  ({Color textColor, Color backgroundColor}) _getStatusConfig(String status) {
+    switch (status.toLowerCase()) {
+      case 'sent':
+        return (textColor: Colors.blue.shade700, backgroundColor: Colors.blue.shade50);
+      case 'viewed':
+        return (textColor: AppColors.cF9A405, backgroundColor: AppColors.cF9A405.withValues(alpha: 0.1));
+      case 'shortlisted':
+        return (textColor: Colors.green.shade700, backgroundColor: Colors.green.shade50);
+      case 'hired':
+        return (textColor: Colors.teal.shade700, backgroundColor: Colors.teal.shade50);
+      case 'rejected':
+        return (textColor: Colors.red.shade700, backgroundColor: Colors.red.shade50);
+      default:
+        return (textColor: AppColors.cF9A405, backgroundColor: AppColors.cF9A405.withValues(alpha: 0.1));
+    }
   }
 }

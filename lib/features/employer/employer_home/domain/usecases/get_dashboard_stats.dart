@@ -8,7 +8,7 @@ class GetDashboardStats {
 
   GetDashboardStats(this.repository);
 
-  Future<Either<Failure, EmployerStatsEntity>> call() {
+  Future<Either<Failure, DashboardStats>> call() {
     return repository.getDashboardStats();
   }
 }

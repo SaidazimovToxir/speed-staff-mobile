@@ -1,30 +1,27 @@
-import 'package:equatable/equatable.dart';
+import 'package:speed_staff_mobile/features/employer/profile/domain/entities/employer_profile.dart';
 
-abstract class EmployerProfileState extends Equatable {
-  const EmployerProfileState();
+enum ProfileStatus { initial, loading, success, notFound, failure }
 
-  @override
-  List<Object?> get props => [];
-}
+class EmployerProfileState {
+  final ProfileStatus status;
+  final EmployerProfile? profile;
+  final String? errorMessage;
 
-class EmployerProfileInitial extends EmployerProfileState {}
+  const EmployerProfileState({
+    this.status = ProfileStatus.initial,
+    this.profile,
+    this.errorMessage,
+  });
 
-class EmployerProfileLoading extends EmployerProfileState {}
-
-class EmployerProfileLoaded extends EmployerProfileState {
-  final Map<String, dynamic> profileData;
-  const EmployerProfileLoaded(this.profileData);
-
-  @override
-  List<Object?> get props => [profileData];
-}
-
-class EmployerProfileUpdated extends EmployerProfileState {}
-
-class EmployerProfileError extends EmployerProfileState {
-  final String message;
-  const EmployerProfileError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  EmployerProfileState copyWith({
+    ProfileStatus? status,
+    EmployerProfile? profile,
+    String? errorMessage,
+  }) {
+    return EmployerProfileState(
+      status: status ?? this.status,
+      profile: profile ?? this.profile,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 }

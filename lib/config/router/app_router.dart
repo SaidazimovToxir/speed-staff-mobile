@@ -54,11 +54,9 @@ class AppRouter {
         },
       ),
       GoRoute(path: RouteNames.notifications, builder: (context, state) => const NotificationsScreen()),
-       GoRoute(
+      GoRoute(
         path: RouteNames.createVacancy,
-        builder: (context, state) {
-          return const CreateVacancyScreen();
-        },
+        builder: (context, state) => const CreateVacancyScreen(),
       ),
       GoRoute(
         path: RouteNames.phoneInputScreen,
@@ -81,15 +79,31 @@ class AppRouter {
       GoRoute(
         path: RouteNames.applications,
         builder: (context, state) {
-          final id = state.extra as String? ?? '1';
-          return ApplicationsScreen(vacancyId: id);
+          final id = state.extra as String? ?? '';
+          return BlocProvider(
+            create: (_) => sl<ApplicationsBloc>(),
+            child: ApplicationsScreen(vacancyId: id),
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.applicationDetail,
+        builder: (context, state) {
+          final id = state.extra as String? ?? '';
+          return BlocProvider(
+            create: (_) => sl<ApplicationsBloc>(),
+            child: ApplicationDetailScreen(applicationId: id),
+          );
         },
       ),
       GoRoute(
         path: RouteNames.candidateProfile,
         builder: (context, state) {
-          final id = state.extra as String? ?? '1';
-          return CandidateProfileScreen(candidateId: id);
+          final id = state.extra as String? ?? '';
+          return BlocProvider(
+            create: (_) => sl<ApplicationsBloc>(),
+            child: CandidateProfileScreen(candidateId: id),
+          );
         },
       ),
       GoRoute(
@@ -103,6 +117,58 @@ class AppRouter {
         builder: (context, state) {
           return const EditEmployerProfileScreen(); 
         },
+      ),
+      GoRoute(
+        path: RouteNames.seekerSearch,
+        builder: (context, state) => const SeekerSearchScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.vacancyDetail,
+        builder: (context, state) {
+          final vacancy = state.extra as Vacancy;
+          return VacancyDetailScreen(vacancy: vacancy);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.applyVacancy,
+        builder: (context, state) {
+          final vacancy = state.extra as Vacancy;
+          return ApplyVacancyScreen(vacancy: vacancy);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.savedVacancies,
+        builder: (context, state) => const SavedVacanciesScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.seekerProfile,
+        builder: (context, state) => const SeekerProfileScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.editSeekerProfile,
+        builder: (context, state) => const EditSeekerProfileScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.seekerDocuments,
+        builder: (context, state) => const SeekerDocumentsScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.editSeekerExperience,
+        builder: (context, state) {
+          final experience = state.extra as SeekerExperience?;
+          return AddExperienceScreen(experience: experience);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.addExperience,
+        builder: (context, state) {
+          final experience = state.extra as SeekerExperience?;
+          return AddExperienceScreen(experience: experience);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.seekerSkills,
+        builder: (context, state) => const SkillSelectionScreen(),
       ),
     ],
   );
